@@ -1,0 +1,1080 @@
+<section id="map" class="map" aria-labelledby="map-title" data-terroir-map>
+  <div class="map__heading">
+    <div>
+      <p class="map__eyebrow">География коллекции</p>
+      <h2 id="map-title">Карта терруаров</h2>
+    </div>
+
+    <p class="map__introduction">
+      Выберите место, чтобы увидеть связанные с ним вина. Карта собирает коллекцию
+      вокруг происхождения — от участка к характеру вина.
+    </p>
+  </div>
+
+  <form class="map__filters" role="search" aria-label="Поиск и фильтрация терруаров" data-map-filters>
+    <label class="map__field map__field--search">
+      <span>Поиск</span>
+      <span class="map__input-wrap">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19">
+          <circle cx="10.8" cy="10.8" r="6.7"></circle>
+          <path d="m16 16 4.2 4.2"></path>
+        </svg>
+        <input
+          type="search"
+          name="query"
+          placeholder="Название терруара"
+          autocomplete="off"
+          data-map-search
+        />
+      </span>
+    </label>
+
+    <label class="map__field">
+      <span>Терруар</span>
+      <span class="map__select-wrap">
+        <select name="terroir" data-map-terroir>
+          <option value="all">Все терруары</option>
+          <option value="mezyb">Мезыбь</option>
+          <option value="rocky-shore">Скалистый берег</option>
+        </select>
+        <svg aria-hidden="true" viewBox="0 0 16 10" width="12" height="8">
+          <path d="m1 1 7 7 7-7"></path>
+        </svg>
+      </span>
+    </label>
+
+    <label class="map__field">
+      <span>Тип вина</span>
+      <span class="map__select-wrap">
+        <select name="type" data-map-type>
+          <option value="all">Все типы</option>
+          <option value="unconfirmed">Тип уточняется</option>
+          <option value="white">Белое</option>
+          <option value="red">Красное</option>
+          <option value="rose">Розовое</option>
+          <option value="sparkling">Игристое</option>
+        </select>
+        <svg aria-hidden="true" viewBox="0 0 16 10" width="12" height="8">
+          <path d="m1 1 7 7 7-7"></path>
+        </svg>
+      </span>
+    </label>
+
+    <button class="map__reset" type="reset" data-map-reset>
+      <span>Сбросить</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17">
+        <path d="M5.2 8A8 8 0 1 1 4 14"></path>
+        <path d="M5 3.5V8h4.5"></path>
+      </svg>
+    </button>
+  </form>
+
+  <div class="map__body">
+    <div class="map__canvas">
+      <div class="map__canvas-meta" aria-hidden="true">
+        <span>Черноморское побережье</span>
+        <span>Условная схема · без масштаба</span>
+      </div>
+
+      <svg
+        class="map__graphic"
+        viewBox="0 0 920 560"
+        role="img"
+        aria-labelledby="map-graphic-title map-graphic-desc"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <title id="map-graphic-title">Условная схема побережья Чёрного моря</title>
+        <desc id="map-graphic-desc">
+          Художественная схема с двумя интерактивными точками: Мезыбь и Скалистый берег.
+          Схема не передаёт точные координаты и масштаб.
+        </desc>
+        <defs>
+          <pattern id="field-grid" width="56" height="56" patternUnits="userSpaceOnUse">
+            <path d="M56 0H0v56" fill="none" stroke="currentColor" stroke-width="0.7"></path>
+          </pattern>
+          <linearGradient id="sea-wash" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#202b20"></stop>
+            <stop offset="0.55" stop-color="#131a14"></stop>
+            <stop offset="1" stop-color="#0c110d"></stop>
+          </linearGradient>
+          <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="12"></feGaussianBlur>
+            <feOffset dy="9"></feOffset>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope=".32"></feFuncA>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <rect class="map__grid" width="920" height="560" fill="url(#field-grid)"></rect>
+
+        <g class="map__contours" aria-hidden="true">
+          <path d="M-20 107C120 54 205 105 317 70s218-76 351-28 173 21 284-14"></path>
+          <path d="M-8 130c128-47 226 3 332-30s213-64 337-20 184 22 278-7"></path>
+          <path d="M-13 467c123-40 209-13 300 22s187 53 297 15 230-22 357 20"></path>
+          <path d="M-25 493c130-31 214-2 302 31s198 44 305 11 237-13 362 27"></path>
+        </g>
+
+        <path
+          class="map__sea-shadow"
+          d="M99 227c35-49 101-70 176-80 71-10 128-35 205-29 58 5 99 29 146 21 72-12 140 20 183 57 37 32 42 66 17 94-30 33-81 33-119 51-42 21-61 59-116 65-48 5-84-17-129-21-53-5-86 16-140 10-62-7-92-39-132-64-45-28-75-61-91-104Z"
+          filter="url(#soft-shadow)"
+        ></path>
+        <path
+          class="map__sea"
+          d="M99 227c35-49 101-70 176-80 71-10 128-35 205-29 58 5 99 29 146 21 72-12 140 20 183 57 37 32 42 66 17 94-30 33-81 33-119 51-42 21-61 59-116 65-48 5-84-17-129-21-53-5-86 16-140 10-62-7-92-39-132-64-45-28-75-61-91-104Z"
+          fill="url(#sea-wash)"
+        ></path>
+        <path
+          class="map__shoreline"
+          d="M99 227c35-49 101-70 176-80 71-10 128-35 205-29 58 5 99 29 146 21 72-12 140 20 183 57 37 32 42 66 17 94-30 33-81 33-119 51-42 21-61 59-116 65-48 5-84-17-129-21-53-5-86 16-140 10-62-7-92-39-132-64-45-28-75-61-91-104Z"
+        ></path>
+        <path class="map__current" d="M176 253c126-67 236-47 337-56 91-8 151-40 236 10"></path>
+        <path class="map__current map__current--short" d="M266 328c90 34 182 24 263 4 73-18 128-32 196-10"></path>
+
+        <g class="map__compass" aria-hidden="true" transform="translate(805 452)">
+          <circle r="34"></circle>
+          <path d="M0-26V26M-26 0h52"></path>
+          <path class="map__compass-north" d="m0-27-5 13 5-3 5 3Z"></path>
+          <text x="0" y="-43">С</text>
+        </g>
+      </svg>
+
+      <button
+        class="map__marker map__marker--mezyb is-active"
+        type="button"
+        data-terroir-target="mezyb"
+        aria-controls="map-card-mezyb"
+        aria-pressed="true"
+      >
+        <span class="map__marker-index" aria-hidden="true"></span>
+        <span class="map__marker-copy">
+          <strong>Мезыбь</strong>
+          <small>Точка коллекции</small>
+        </span>
+      </button>
+
+      <button
+        class="map__marker map__marker--rocky"
+        type="button"
+        data-terroir-target="rocky-shore"
+        aria-controls="map-card-rocky-shore"
+        aria-pressed="false"
+      >
+        <span class="map__marker-index" aria-hidden="true"></span>
+        <span class="map__marker-copy">
+          <strong>Скалистый берег</strong>
+          <small>Точка коллекции</small>
+        </span>
+      </button>
+
+      <p class="map__disclaimer">
+        Схема носит художественный характер. Точные географические данные будут
+        опубликованы только после верификации.
+      </p>
+    </div>
+
+    <aside class="map__results" aria-label="Терруары на карте">
+      <div class="map__results-head">
+        <p>Места коллекции</p>
+        <p class="map__status" aria-live="polite" aria-atomic="true" data-map-status>
+          Найдено: 2 из 2
+        </p>
+      </div>
+
+      <ul class="map__list" data-map-list>
+        <li
+          id="map-card-mezyb"
+          class="map__card is-active"
+          data-terroir-card
+          data-key="mezyb"
+          data-type="unconfirmed"
+          data-search="мезыбь терруар место коллекции данные уточняются"
+        >
+          <div class="map__card-topline">
+            <span>Мезыбь</span>
+            <span class="map__card-state">Данные уточняются</span>
+          </div>
+          <h3>Место, раскрытое через вино</h3>
+          <p>
+            Профиль участка и связанные вина появятся после подтверждения материалов
+            проекта.
+          </p>
+          <button type="button" data-card-target="mezyb">
+            <span>Выделить на схеме</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+        </li>
+
+        <li
+          id="map-card-rocky-shore"
+          class="map__card"
+          data-terroir-card
+          data-key="rocky-shore"
+          data-type="unconfirmed"
+          data-search="скалистый берег терруар место коллекции данные уточняются"
+        >
+          <div class="map__card-topline">
+            <span>Скалистый берег</span>
+            <span class="map__card-state">Данные уточняются</span>
+          </div>
+          <h3>Характер конкретного места</h3>
+          <p>
+            Профиль участка и связанные вина появятся после подтверждения материалов
+            проекта.
+          </p>
+          <button type="button" data-card-target="rocky-shore">
+            <span>Выделить на схеме</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="map__empty" hidden data-map-empty>
+        <span aria-hidden="true">∅</span>
+        <h3>Ничего не найдено</h3>
+        <p>Измените запрос или сбросьте фильтры, чтобы увидеть все терруары.</p>
+        <button type="button" data-empty-reset>Показать все</button>
+      </div>
+
+      <p class="map__data-note">
+        Фильтр по типу вина подготовлен к наполнению. До публикации подтверждённой
+        коллекции типы вин не присваиваются.
+      </p>
+    </aside>
+  </div>
+</section>
+
+<script>
+  const mapRoot = document.querySelector<HTMLElement>('[data-terroir-map]');
+
+  if (mapRoot) {
+    const form = mapRoot.querySelector<HTMLFormElement>('[data-map-filters]');
+    const search = mapRoot.querySelector<HTMLInputElement>('[data-map-search]');
+    const terroirSelect = mapRoot.querySelector<HTMLSelectElement>('[data-map-terroir]');
+    const typeSelect = mapRoot.querySelector<HTMLSelectElement>('[data-map-type]');
+    const reset = mapRoot.querySelector<HTMLButtonElement>('[data-map-reset]');
+    const emptyReset = mapRoot.querySelector<HTMLButtonElement>('[data-empty-reset]');
+    const empty = mapRoot.querySelector<HTMLElement>('[data-map-empty]');
+    const status = mapRoot.querySelector<HTMLElement>('[data-map-status]');
+    const cards = Array.from(mapRoot.querySelectorAll<HTMLElement>('[data-terroir-card]'));
+    const markers = Array.from(mapRoot.querySelectorAll<HTMLButtonElement>('[data-terroir-target]'));
+    const cardButtons = Array.from(mapRoot.querySelectorAll<HTMLButtonElement>('[data-card-target]'));
+
+    let activeKey: string | null = 'mezyb';
+
+    const setActive = (key: string | null) => {
+      activeKey = key;
+
+      cards.forEach((card) => {
+        const isActive = card.dataset.key === key && !card.hidden;
+        card.classList.toggle('is-active', isActive);
+      });
+
+      markers.forEach((marker) => {
+        const isActive = marker.dataset.terroirTarget === key;
+        marker.classList.toggle('is-active', isActive);
+        marker.setAttribute('aria-pressed', String(isActive));
+      });
+    };
+
+    const applyFilters = () => {
+      if (!search || !terroirSelect || !typeSelect || !empty || !status) return;
+
+      const query = search.value.trim().toLocaleLowerCase('ru-RU');
+      const terroir = terroirSelect.value;
+      const type = typeSelect.value;
+      const visibleKeys = new Set<string>();
+
+      cards.forEach((card) => {
+        const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
+        const matchesTerroir = terroir === 'all' || card.dataset.key === terroir;
+        const matchesType = type === 'all' || card.dataset.type === type;
+        const isVisible = matchesQuery && matchesTerroir && matchesType;
+
+        card.hidden = !isVisible;
+        if (isVisible && card.dataset.key) visibleKeys.add(card.dataset.key);
+      });
+
+      const firstVisibleKey = visibleKeys.values().next().value ?? null;
+      if (!activeKey || !visibleKeys.has(activeKey)) setActive(firstVisibleKey);
+      else setActive(activeKey);
+
+      markers.forEach((marker) => {
+        const isFiltered = !visibleKeys.has(marker.dataset.terroirTarget ?? '');
+        marker.toggleAttribute('data-filtered', isFiltered);
+      });
+
+      empty.hidden = visibleKeys.size !== 0;
+      status.textContent = visibleKeys.size === 0
+        ? 'По заданным параметрам ничего не найдено'
+        : `Найдено: ${visibleKeys.size} из ${cards.length}`;
+
+      if (reset) reset.disabled = !query && terroir === 'all' && type === 'all';
+    };
+
+    const resetFilters = () => {
+      if (search) search.value = '';
+      if (terroirSelect) terroirSelect.value = 'all';
+      if (typeSelect) typeSelect.value = 'all';
+      setActive('mezyb');
+      applyFilters();
+    };
+
+    form?.addEventListener('submit', (event) => event.preventDefault());
+    form?.addEventListener('input', applyFilters);
+    form?.addEventListener('change', applyFilters);
+    form?.addEventListener('reset', () => requestAnimationFrame(resetFilters));
+    emptyReset?.addEventListener('click', resetFilters);
+
+    markers.forEach((marker) => {
+      marker.addEventListener('click', () => {
+        const key = marker.dataset.terroirTarget;
+        if (!key || !terroirSelect || !typeSelect || !search) return;
+
+        search.value = '';
+        typeSelect.value = 'all';
+        terroirSelect.value = key;
+        applyFilters();
+        setActive(key);
+      });
+    });
+
+    cardButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const key = button.dataset.cardTarget;
+        if (key) setActive(key);
+      });
+    });
+
+    applyFilters();
+  }
+</script>
+
+<style>
+  .map {
+    --map-ink: var(--color-ink, #101510);
+    --map-vineyard: var(--color-vineyard, #172018);
+    --map-grape: var(--color-grape, #5b2534);
+    --map-clay: var(--color-clay, #b75c3d);
+    --map-limestone: var(--color-limestone, #eee9df);
+    --map-chalk: var(--color-chalk, #f7f3ea);
+    --map-moss: var(--color-moss, #8d9588);
+    --map-ui: var(--font-body, "Commissioner Variable", "Commissioner", sans-serif);
+    --map-display: var(--font-display, "Prata", serif);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(5.5rem, 9vw, 10rem) clamp(1.25rem, 4.45vw, 4rem);
+    color: var(--map-limestone);
+    background:
+      radial-gradient(circle at 79% 13%, rgba(91, 37, 52, 0.2), transparent 28rem),
+      linear-gradient(132deg, var(--map-vineyard), var(--map-ink) 58%);
+    font-family: var(--map-ui);
+  }
+
+  .map::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      103deg,
+      transparent 0,
+      transparent 49px,
+      rgba(238, 233, 223, 0.025) 50px,
+      transparent 51px
+    );
+    content: "";
+    pointer-events: none;
+  }
+
+  .map__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.58fr);
+    gap: clamp(2rem, 6vw, 8rem);
+    align-items: end;
+    margin: 0 auto clamp(3rem, 6vw, 6rem);
+    max-width: 112rem;
+  }
+
+  .map__eyebrow,
+  .map__field > span:first-child,
+  .map__canvas-meta,
+  .map__results-head,
+  .map__card-state {
+    font-size: 0.68rem;
+    font-weight: 540;
+    line-height: 1.2;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .map__eyebrow {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin: 0 0 1.4rem;
+    color: rgba(238, 233, 223, 0.62);
+  }
+
+  .map__eyebrow::before {
+    width: 2.75rem;
+    height: 1px;
+    background: var(--map-clay);
+    content: "";
+  }
+
+  .map h2 {
+    max-width: 13ch;
+    margin: 0;
+    font-family: var(--map-display);
+    font-size: clamp(3.25rem, 7vw, 8.25rem);
+    font-weight: 400;
+    line-height: 0.94;
+    letter-spacing: -0.045em;
+  }
+
+  .map__introduction {
+    max-width: 33rem;
+    margin: 0;
+    color: rgba(238, 233, 223, 0.7);
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    font-weight: 320;
+    line-height: 1.72;
+  }
+
+  .map__filters {
+    display: grid;
+    grid-template-columns: minmax(15rem, 1.6fr) repeat(2, minmax(11rem, 0.85fr)) auto;
+    gap: 1px;
+    max-width: 112rem;
+    margin: 0 auto;
+    border: 1px solid rgba(238, 233, 223, 0.2);
+    background: rgba(238, 233, 223, 0.2);
+  }
+
+  .map__field {
+    display: grid;
+    gap: 0.6rem;
+    min-width: 0;
+    padding: 0.9rem 1.1rem 0.75rem;
+    background: rgba(16, 21, 16, 0.93);
+  }
+
+  .map__field > span:first-child {
+    color: rgba(238, 233, 223, 0.48);
+  }
+
+  .map__input-wrap,
+  .map__select-wrap {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .map__input-wrap > svg {
+    flex: 0 0 auto;
+    margin-right: 0.75rem;
+    fill: none;
+    stroke: var(--map-clay);
+    stroke-linecap: round;
+    stroke-width: 1.45;
+  }
+
+  .map__field input,
+  .map__field select {
+    width: 100%;
+    min-width: 0;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: var(--map-limestone);
+    background: transparent;
+    font: 400 0.94rem/1.2 var(--map-ui);
+  }
+
+  .map__field input::placeholder {
+    color: rgba(238, 233, 223, 0.43);
+    opacity: 1;
+  }
+
+  .map__field input::-webkit-search-cancel-button {
+    filter: invert(1);
+    opacity: 0.58;
+  }
+
+  .map__field select {
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .map__field select option {
+    color: var(--map-ink);
+    background: var(--map-limestone);
+  }
+
+  .map__select-wrap {
+    position: relative;
+  }
+
+  .map__select-wrap svg {
+    position: absolute;
+    right: 0;
+    fill: none;
+    stroke: rgba(238, 233, 223, 0.65);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+    pointer-events: none;
+  }
+
+  .map__reset {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    min-width: 10rem;
+    min-height: 4.9rem;
+    padding: 1rem 1.4rem;
+    border: 0;
+    color: var(--map-limestone);
+    background: var(--map-grape);
+    font: 520 0.7rem/1 var(--map-ui);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 180ms ease, opacity 180ms ease;
+  }
+
+  .map__reset svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.3;
+  }
+
+  .map__reset:hover:not(:disabled) {
+    background: var(--map-clay);
+  }
+
+  .map__reset:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+
+  .map__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.72fr) minmax(20rem, 0.72fr);
+    min-height: clamp(39rem, 61vw, 53rem);
+    max-width: 112rem;
+    margin: -1px auto 0;
+    border: 1px solid rgba(238, 233, 223, 0.2);
+  }
+
+  .map__canvas {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    background:
+      linear-gradient(rgba(238, 233, 223, 0.018), rgba(238, 233, 223, 0)),
+      #121812;
+  }
+
+  .map__canvas-meta {
+    position: absolute;
+    z-index: 2;
+    top: 1.3rem;
+    right: 1.4rem;
+    left: 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    color: rgba(238, 233, 223, 0.42);
+    pointer-events: none;
+  }
+
+  .map__graphic {
+    width: 100%;
+    height: 100%;
+    min-height: 38rem;
+    color: rgba(238, 233, 223, 0.08);
+  }
+
+  .map__grid {
+    opacity: 0.62;
+  }
+
+  .map__contours path {
+    fill: none;
+    stroke: rgba(238, 233, 223, 0.08);
+    stroke-width: 1;
+  }
+
+  .map__sea-shadow {
+    fill: rgba(0, 0, 0, 0.46);
+  }
+
+  .map__sea {
+    stroke: rgba(238, 233, 223, 0.08);
+    stroke-width: 8;
+  }
+
+  .map__shoreline {
+    fill: none;
+    stroke: var(--map-limestone);
+    stroke-width: 1.35;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .map__current {
+    fill: none;
+    stroke: rgba(183, 92, 61, 0.32);
+    stroke-dasharray: 3 7;
+    stroke-linecap: round;
+    stroke-width: 1.15;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .map__current--short {
+    stroke: rgba(238, 233, 223, 0.16);
+  }
+
+  .map__compass circle,
+  .map__compass path {
+    fill: none;
+    stroke: rgba(238, 233, 223, 0.2);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .map__compass .map__compass-north {
+    fill: var(--map-clay);
+    stroke: none;
+  }
+
+  .map__compass text {
+    fill: rgba(238, 233, 223, 0.52);
+    font: 500 11px/1 var(--map-ui);
+    text-anchor: middle;
+  }
+
+  .map__marker {
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.65rem;
+    border: 0;
+    color: var(--map-limestone);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .map__marker--mezyb {
+    top: 36%;
+    left: 60%;
+  }
+
+  .map__marker--rocky {
+    top: 55%;
+    left: 42%;
+  }
+
+  .map__marker-index {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid rgba(238, 233, 223, 0.64);
+    border-radius: 50%;
+    place-items: center;
+    box-shadow: 0 0 0 6px rgba(16, 21, 16, 0.5);
+  }
+
+  .map__marker-index::before {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 50%;
+    background: var(--map-limestone);
+    content: "";
+    transition: background-color 180ms ease, transform 180ms ease;
+  }
+
+  .map__marker-index::after {
+    position: absolute;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--map-clay);
+    border-radius: 50%;
+    content: "";
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .map__marker-copy {
+    display: grid;
+    min-width: max-content;
+    padding: 0.42rem 0.55rem;
+    background: rgba(16, 21, 16, 0.82);
+    box-shadow: 0 0 0 1px rgba(238, 233, 223, 0.12);
+  }
+
+  .map__marker-copy strong {
+    font-size: 0.77rem;
+    font-weight: 560;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .map__marker-copy small {
+    margin-top: 0.2rem;
+    color: rgba(238, 233, 223, 0.46);
+    font-size: 0.59rem;
+    font-weight: 450;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .map__marker:hover,
+  .map__marker.is-active {
+    transform: translateY(-2px);
+  }
+
+  .map__marker:hover .map__marker-index::before,
+  .map__marker.is-active .map__marker-index::before {
+    background: var(--map-clay);
+    transform: scale(1.25);
+  }
+
+  .map__marker.is-active .map__marker-index::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .map__marker[data-filtered] {
+    opacity: 0.24;
+  }
+
+  .map__marker[data-filtered]:hover,
+  .map__marker[data-filtered]:focus-visible {
+    opacity: 0.82;
+  }
+
+  .map__disclaimer {
+    position: absolute;
+    z-index: 2;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    max-width: 35rem;
+    margin: 0;
+    color: rgba(238, 233, 223, 0.42);
+    font-size: 0.7rem;
+    font-weight: 360;
+    line-height: 1.55;
+  }
+
+  .map__results {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    border-left: 1px solid rgba(238, 233, 223, 0.2);
+    background: var(--map-limestone);
+    color: var(--map-ink);
+  }
+
+  .map__results-head {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 1.25rem 1.4rem;
+    border-bottom: 1px solid rgba(16, 21, 16, 0.18);
+  }
+
+  .map__results-head p {
+    margin: 0;
+  }
+
+  .map__status {
+    color: rgba(16, 21, 16, 0.52);
+    text-align: right;
+  }
+
+  .map__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .map__card {
+    position: relative;
+    padding: clamp(1.6rem, 3vw, 2.6rem) clamp(1.4rem, 3vw, 2.5rem);
+    border-bottom: 1px solid rgba(16, 21, 16, 0.18);
+    background: var(--map-limestone);
+    transition: background-color 180ms ease;
+  }
+
+  .map__card::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: var(--map-clay);
+    content: "";
+    opacity: 0;
+    transform: scaleY(0.2);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .map__card.is-active {
+    background: var(--map-chalk);
+  }
+
+  .map__card.is-active::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .map__card-topline {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: clamp(2.7rem, 5vw, 5.5rem);
+    font-size: 0.76rem;
+    font-weight: 590;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .map__card-state {
+    color: var(--map-grape);
+    text-align: right;
+  }
+
+  .map__card h3,
+  .map__empty h3 {
+    margin: 0 0 0.85rem;
+    font-family: var(--map-display);
+    font-size: clamp(1.55rem, 2.5vw, 2.35rem);
+    font-weight: 400;
+    line-height: 1.17;
+    letter-spacing: -0.025em;
+  }
+
+  .map__card > p {
+    margin: 0;
+    color: rgba(16, 21, 16, 0.63);
+    font-size: 0.9rem;
+    font-weight: 350;
+    line-height: 1.65;
+  }
+
+  .map__card > button,
+  .map__empty button {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.75rem;
+    margin-top: 1.55rem;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid rgba(16, 21, 16, 0.34);
+    color: var(--map-ink);
+    background: transparent;
+    font: 540 0.68rem/1 var(--map-ui);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .map__card > button:hover,
+  .map__empty button:hover {
+    border-color: var(--map-clay);
+    color: var(--map-clay);
+  }
+
+  .map__empty {
+    margin: auto;
+    padding: 3rem clamp(1.4rem, 3vw, 2.5rem);
+  }
+
+  .map__empty > span {
+    display: block;
+    margin-bottom: 1.5rem;
+    color: var(--map-clay);
+    font-family: var(--map-display);
+    font-size: 3rem;
+  }
+
+  .map__empty p {
+    max-width: 28rem;
+    margin: 0;
+    color: rgba(16, 21, 16, 0.63);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .map__data-note {
+    margin: auto 0 0;
+    padding: 1.4rem;
+    border-top: 1px solid rgba(16, 21, 16, 0.18);
+    color: rgba(16, 21, 16, 0.5);
+    font-size: 0.67rem;
+    font-weight: 380;
+    line-height: 1.55;
+  }
+
+  .map :is(input, select, button):focus-visible {
+    outline: 2px solid var(--map-clay);
+    outline-offset: 3px;
+  }
+
+  .map [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 68rem) {
+    .map__filters {
+      grid-template-columns: 1.25fr 1fr 1fr;
+    }
+
+    .map__reset {
+      grid-column: 1 / -1;
+      min-height: 3.6rem;
+    }
+
+    .map__body {
+      grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.8fr);
+    }
+
+    .map__marker--mezyb {
+      left: 56%;
+    }
+
+    .map__marker--rocky {
+      left: 34%;
+    }
+  }
+
+  @media (max-width: 56.25rem) {
+    .map__heading {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .map__body {
+      grid-template-columns: 1fr;
+    }
+
+    .map__canvas {
+      min-height: 36rem;
+    }
+
+    .map__results {
+      border-top: 1px solid rgba(238, 233, 223, 0.2);
+      border-left: 0;
+    }
+
+    .map__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .map__card + .map__card {
+      border-left: 1px solid rgba(16, 21, 16, 0.18);
+    }
+
+    .map__data-note {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 45rem) {
+    .map {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+
+    .map__filters {
+      grid-template-columns: 1fr;
+    }
+
+    .map__reset {
+      grid-column: auto;
+    }
+
+    .map__canvas {
+      min-height: 31rem;
+    }
+
+    .map__canvas-meta {
+      display: grid;
+      gap: 0.3rem;
+    }
+
+    .map__graphic {
+      width: 155%;
+      min-height: 31rem;
+      transform: translateX(-24%);
+    }
+
+    .map__marker {
+      right: 0.75rem;
+      left: auto;
+    }
+
+    .map__marker--mezyb {
+      top: 29%;
+    }
+
+    .map__marker--rocky {
+      top: 51%;
+    }
+
+    .map__marker-copy {
+      min-width: 9.6rem;
+    }
+
+    .map__disclaimer {
+      right: 1rem;
+      bottom: 1rem;
+      left: 1rem;
+      max-width: none;
+    }
+
+    .map__list {
+      grid-template-columns: 1fr;
+    }
+
+    .map__card + .map__card {
+      border-left: 0;
+    }
+
+    .map__card-topline {
+      margin-bottom: 3.2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .map *,
+    .map *::before,
+    .map *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

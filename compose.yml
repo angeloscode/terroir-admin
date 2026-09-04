@@ -1,0 +1,13 @@
+name: terroir-black-sea
+
+services:
+  web:
+    image: terroir-black-sea:local
+    build:
+      context: .
+      args:
+        PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:8080}
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+

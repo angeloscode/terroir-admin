@@ -1,0 +1,134 @@
+<section class="buy" id="buy" aria-labelledby="buy-title">
+  <div class="buy__intro shell" data-reveal>
+    <p class="eyebrow">Где купить</p>
+    <h2 class="section-title" id="buy-title">Где найти<br /><em>коллекцию.</em></h2>
+    <p class="section-lead">Выберите удобный формат знакомства с винами проекта.</p>
+  </div>
+
+  <div class="buy__routes shell">
+    <article class="buy-card" data-reveal>
+      <span class="buy-card__index" aria-hidden="true">01</span>
+      <p class="buy-card__eyebrow">Для частных гостей</p>
+      <h3>Винотеки<br />и рестораны</h3>
+      <p>Список партнёров появится после подтверждения точек присутствия коллекции.</p>
+      <a class="text-link" href="#contacts">Уточнить контакты</a>
+    </article>
+
+    <article class="buy-card buy-card--horeca" data-reveal>
+      <span class="buy-card__index" aria-hidden="true">02</span>
+      <p class="buy-card__eyebrow">Для ресторанов и винотек</p>
+      <h3>Коллекция<br />для HoReCa</h3>
+      <p>Запросите информацию о доступности вин и будущих условиях сотрудничества.</p>
+      <a class="text-link" href="#contacts">Уточнить контакты</a>
+    </article>
+  </div>
+</section>
+
+<style>
+  .buy {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--section-space);
+    background: #c8b9a7;
+    color: var(--ink);
+  }
+
+  .buy::before {
+    position: absolute;
+    top: -25%;
+    right: -5%;
+    width: 55vw;
+    height: 55vw;
+    border: 1px solid rgba(16, 21, 16, 0.12);
+    border-radius: 50%;
+    content: '';
+    box-shadow: 0 0 0 5vw rgba(16, 21, 16, 0.025), 0 0 0 10vw rgba(16, 21, 16, 0.025);
+  }
+
+  .buy__intro,
+  .buy__routes {
+    position: relative;
+    z-index: 1;
+  }
+
+  .buy__intro em {
+    color: var(--grape);
+    font-weight: 400;
+  }
+
+  .buy__routes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-top: clamp(4rem, 8vw, 8rem);
+    background: rgba(16, 21, 16, 0.24);
+  }
+
+  .buy-card {
+    position: relative;
+    min-height: 33rem;
+    padding: clamp(2rem, 4vw, 4rem);
+    background: var(--limestone);
+  }
+
+  .buy-card--horeca {
+    background: var(--ink-soft);
+    color: var(--chalk);
+  }
+
+  .buy-card__index {
+    position: absolute;
+    top: 1.8rem;
+    right: 1.8rem;
+    color: rgba(16, 21, 16, 0.48);
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 10vw, 10rem);
+    line-height: 1;
+  }
+
+  .buy-card--horeca .buy-card__index {
+    color: rgba(247, 243, 234, 0.38);
+  }
+
+  .buy-card__eyebrow {
+    margin: 0;
+    color: var(--grape);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .buy-card--horeca .buy-card__eyebrow {
+    color: #d47d5f;
+  }
+
+  .buy-card h3 {
+    margin: clamp(5rem, 10vw, 9rem) 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 4.6vw, 5.4rem);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.96;
+  }
+
+  .buy-card > p:not(.buy-card__eyebrow) {
+    max-width: 31rem;
+    margin: 1.5rem 0 2.5rem;
+    color: rgba(16, 21, 16, 0.62);
+  }
+
+  .buy-card--horeca > p:not(.buy-card__eyebrow) {
+    color: rgba(247, 243, 234, 0.65);
+  }
+
+  @media (max-width: 760px) {
+    .buy__routes {
+      grid-template-columns: 1fr;
+    }
+
+    .buy-card {
+      min-height: 30rem;
+    }
+  }
+</style>

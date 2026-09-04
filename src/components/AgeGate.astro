@@ -1,0 +1,336 @@
+---
+import poster from '../assets/video-vineyard-wide.png';
+---
+
+<div
+  class="age-gate"
+  id="age-gate"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="age-gate-title"
+  aria-describedby="age-gate-description"
+  style={`--gate-poster: url(${poster.src})`}
+>
+  <div class="age-gate__veil"></div>
+  <div class="age-gate__topline">
+    <span>Терруар Чёрного моря</span>
+    <span>Коллекция авторских вин</span>
+  </div>
+
+  <div class="age-gate__content" data-age-content>
+    <p class="age-gate__index" aria-hidden="true">18+</p>
+    <p class="age-gate__eyebrow">Вкус места начинается здесь</p>
+    <h2 id="age-gate-title">Вам уже исполнилось<br /><em>18 лет?</em></h2>
+    <p id="age-gate-description">
+      Сайт содержит информацию об алкогольной продукции и предназначен для совершеннолетних.
+    </p>
+    <div class="age-gate__actions">
+      <button class="age-gate__accept" type="button" data-age-accept>
+        <span>Да, открыть сайт</span><span aria-hidden="true">↗</span>
+      </button>
+      <button class="age-gate__decline" type="button" data-age-decline>Нет, мне ещё нет 18</button>
+    </div>
+  </div>
+
+  <div class="age-gate__declined" data-age-declined hidden>
+    <p class="age-gate__eyebrow">Доступ ограничен</p>
+    <h2>Мы будем ждать<br /><em>вас позже.</em></h2>
+    <p>Информация на сайте предназначена только для совершеннолетних посетителей.</p>
+    <button class="age-gate__decline" type="button" data-age-return>Вернуться к вопросу</button>
+  </div>
+
+  <p class="age-gate__warning">Чрезмерное употребление алкоголя вредит вашему здоровью</p>
+</div>
+
+<script>
+  const gate = document.querySelector<HTMLElement>('#age-gate');
+  const lockedRegions = [
+    document.querySelector<HTMLElement>('#main-content'),
+    document.querySelector<HTMLElement>('[data-site-header]'),
+    document.querySelector<HTMLElement>('.footer'),
+  ].filter((region): region is HTMLElement => Boolean(region));
+  const accept = gate?.querySelector<HTMLButtonElement>('[data-age-accept]');
+  const decline = gate?.querySelector<HTMLButtonElement>('[data-age-decline]');
+  const returnButton = gate?.querySelector<HTMLButtonElement>('[data-age-return]');
+  const content = gate?.querySelector<HTMLElement>('[data-age-content]');
+  const declined = gate?.querySelector<HTMLElement>('[data-age-declined]');
+  const storageKey = 'terroir-age-v1';
+
+  const isVerified = () => {
+    try {
+      return localStorage.getItem(storageKey) === 'verified';
+    } catch {
+      return false;
+    }
+  };
+
+  const setPageLock = (locked: boolean) => {
+    document.documentElement.classList.toggle('age-locked', locked);
+    lockedRegions.forEach((region) => { region.inert = locked; });
+  };
+
+  const pinGateToTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+  const activateGate = () => {
+    if (!gate || isVerified()) {
+      gate?.setAttribute('hidden', '');
+      setPageLock(false);
+      return;
+    }
+
+    pinGateToTop();
+    setPageLock(true);
+    window.addEventListener('pageshow', pinGateToTop, { once: true });
+    requestAnimationFrame(() => {
+      pinGateToTop();
+      accept?.focus({ preventScroll: true });
+    });
+  };
+
+  const verify = () => {
+    try {
+      localStorage.setItem(storageKey, 'verified');
+    } catch {
+      // The current visit can continue even when storage is unavailable.
+    }
+
+    pinGateToTop();
+    document.documentElement.classList.add('age-verified');
+    setPageLock(false);
+    gate?.classList.add('is-leaving');
+    window.dispatchEvent(new CustomEvent('terroir:age-verified'));
+    window.setTimeout(() => gate?.setAttribute('hidden', ''), 850);
+    document.querySelector<HTMLElement>('[data-hero-primary]')?.focus({ preventScroll: true });
+  };
+
+  accept?.addEventListener('click', verify);
+  decline?.addEventListener('click', () => {
+    if (content) content.hidden = true;
+    if (declined) declined.hidden = false;
+    returnButton?.focus();
+  });
+  returnButton?.addEventListener('click', () => {
+    if (content) content.hidden = false;
+    if (declined) declined.hidden = true;
+    accept?.focus();
+  });
+
+  gate?.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') event.preventDefault();
+    if (event.key !== 'Tab') return;
+
+    const controls = [...gate.querySelectorAll<HTMLElement>('button:not([hidden]), a[href]:not([hidden])')]
+      .filter((item) => item.offsetParent !== null);
+    if (controls.length < 2) return;
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  });
+
+  activateGate();
+</script>
+
+<style>
+  .age-gate {
+    position: fixed;
+    z-index: 4000;
+    inset: 0;
+    min-height: 100svh;
+    overflow: hidden;
+    padding: max(1.35rem, env(safe-area-inset-top)) var(--gutter) max(1.35rem, env(safe-area-inset-bottom));
+    background-color: var(--ink);
+    background-image: var(--gate-poster);
+    background-position: center;
+    background-size: cover;
+    color: var(--chalk);
+    transition: opacity 700ms var(--ease-out), visibility 700ms;
+  }
+
+  .age-gate[hidden] {
+    display: none;
+  }
+
+  :global(.age-verified) .age-gate,
+  .age-gate.is-leaving {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .age-gate__veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(10, 14, 10, 0.97) 0%, rgba(10, 14, 10, 0.78) 48%, rgba(10, 14, 10, 0.36) 100%),
+      linear-gradient(0deg, rgba(10, 14, 10, 0.75), transparent 45%);
+  }
+
+  .age-gate__veil::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    opacity: 0.17;
+    background-image:
+      linear-gradient(rgba(238, 233, 223, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(238, 233, 223, 0.16) 1px, transparent 1px);
+    background-size: 25vw 25vh;
+  }
+
+  .age-gate__topline,
+  .age-gate__warning,
+  .age-gate__content,
+  .age-gate__declined {
+    position: relative;
+    z-index: 1;
+  }
+
+  .age-gate__topline {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line-light);
+    padding-bottom: 1rem;
+    font-size: 0.66rem;
+    font-weight: 520;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .age-gate__content,
+  .age-gate__declined {
+    width: min(65rem, 100%);
+    margin-top: clamp(3.8rem, 9vh, 6.5rem);
+  }
+
+  .age-gate__index {
+    position: absolute;
+    top: -1.5rem;
+    left: min(82vw, 66rem);
+    color: var(--clay);
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 14vw, 12rem);
+    line-height: 1;
+    opacity: 0.88;
+  }
+
+  .age-gate__eyebrow {
+    margin-bottom: 1.35rem;
+    color: var(--clay);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+  }
+
+  .age-gate h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 6.6vw, 7rem);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+  }
+
+  .age-gate h2 em {
+    color: var(--limestone);
+    font-weight: 400;
+  }
+
+  #age-gate-description,
+  .age-gate__declined > p:not(.age-gate__eyebrow) {
+    max-width: 31rem;
+    margin: 2rem 0 0;
+    color: rgba(247, 243, 234, 0.74);
+    font-size: 1rem;
+  }
+
+  .age-gate__actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2.35rem;
+  }
+
+  .age-gate__accept {
+    display: flex;
+    min-width: 14rem;
+    min-height: 3.8rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    border: 1px solid var(--chalk);
+    padding: 0 1.25rem;
+    background: var(--chalk);
+    color: var(--ink);
+    font-size: 0.74rem;
+    font-weight: 620;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: background 250ms ease, color 250ms ease, transform 250ms var(--ease-out);
+  }
+
+  .age-gate__accept:hover {
+    transform: translateY(-2px);
+    background: var(--clay);
+    color: var(--chalk);
+  }
+
+  .age-gate__decline {
+    min-height: 2.75rem;
+    border: 0;
+    border-bottom: 1px solid rgba(247, 243, 234, 0.42);
+    padding: 0;
+    background: transparent;
+    color: rgba(247, 243, 234, 0.67);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .age-gate__warning {
+    position: absolute;
+    right: var(--gutter);
+    bottom: max(1.35rem, env(safe-area-inset-bottom));
+    margin: 0;
+    color: rgba(247, 243, 234, 0.48);
+    font-size: 0.58rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 720px) {
+    .age-gate__topline span:last-child,
+    .age-gate__index {
+      display: none;
+    }
+
+    .age-gate__content,
+    .age-gate__declined {
+      margin-top: 12vh;
+    }
+
+    .age-gate__actions {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .age-gate__accept {
+      width: 100%;
+    }
+
+    .age-gate__decline {
+      align-self: flex-start;
+    }
+
+    .age-gate__warning {
+      right: var(--gutter);
+      left: var(--gutter);
+      max-width: 22rem;
+    }
+  }
+</style>

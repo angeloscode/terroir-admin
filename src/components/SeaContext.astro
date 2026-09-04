@@ -1,0 +1,431 @@
+---
+import { Image } from 'astro:assets';
+import seaPoster from '../assets/video-mountains.png';
+import soilImage from '../assets/soil-grape-placeholder.png';
+---
+
+<section class="sea-chapter" aria-labelledby="sea-chapter-title" data-sea-story>
+  <div class="sea-chapter__stage" data-sea-stage data-sea-phase="title">
+    <video
+      class="sea-chapter__video"
+      data-sea-video
+      data-src="/media/hero-vineyards.mp4"
+      muted
+      playsinline
+      loop
+      preload="none"
+      poster={seaPoster.src}
+      tabindex="-1"
+      aria-hidden="true"
+    ></video>
+    <div class="sea-chapter__veil"></div>
+    <div class="sea-chapter__topline shell" aria-hidden="true">
+      <span>География коллекции</span>
+      <span>Море / Рельеф / Виноградник</span>
+    </div>
+    <div class="sea-chapter__title shell" data-sea-title>
+      <p class="eyebrow">География коллекции</p>
+      <h2 id="sea-chapter-title">Одно море —<br /><em>разные терруары.</em></h2>
+    </div>
+    <div class="sea-chapter__statement shell" data-sea-statement>
+      <p>
+        Черноморское побережье не сводится к одному образу и одному вкусу. Расстояние до воды, форма
+        склонов, высота, экспозиция и почва меняются от участка к участку.
+      </p>
+      <strong>Море связывает географию.<br />Терруар сохраняет различия.</strong>
+    </div>
+  </div>
+</section>
+
+<section class="system" aria-labelledby="system-title">
+  <div class="system__grid shell">
+    <div class="system__copy" data-reveal>
+      <p class="eyebrow">Система факторов</p>
+      <h2 class="section-title" id="system-title">Море —<br /><em>часть системы.</em></h2>
+      <p class="section-lead">
+        Мы не объясняем вино одним фактором. Море задаёт общий климатический контекст, но на каждом
+        участке его влияние преломляется рельефом, высотой, экспозицией, почвой и ходом конкретного сезона.
+      </p>
+      <p class="system__conclusion">Исследование начинается с данных — и заканчивается дегустацией.</p>
+    </div>
+
+    <figure class="system__figure" data-reveal>
+      <Image
+        src={soilImage}
+        widths={[640, 960, 1280]}
+        sizes="(max-width: 900px) 100vw, 46vw"
+        format="webp"
+        quality={82}
+        alt="Кусочек известняковой почвы и виноградная ягода — временная иллюстрация"
+        loading="lazy"
+      />
+      <figcaption>
+        <span>Материал / процесс</span>
+        <span class="placeholder-tag">Временное изображение</span>
+      </figcaption>
+    </figure>
+
+    <div class="system__sequence" role="list" aria-label="Путь от земли к вину" data-reveal>
+      <span role="listitem">Земля</span><i aria-hidden="true">01</i><span role="listitem">Лоза</span><i aria-hidden="true">02</i><span role="listitem">Вино</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  const seaStory = document.querySelector<HTMLElement>('[data-sea-story]');
+  const seaStage = seaStory?.querySelector<HTMLElement>('[data-sea-stage]');
+  const seaVideo = seaStory?.querySelector<HTMLVideoElement>('[data-sea-video]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let frameRequested = false;
+  let sourceLoaded = false;
+
+  const loadSource = () => {
+    if (!seaVideo || sourceLoaded || reduceMotion.matches) return;
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    if (saveData) return;
+    seaVideo.src = seaVideo.dataset.src || '';
+    sourceLoaded = true;
+  };
+
+  const updateSea = () => {
+    frameRequested = false;
+    if (!seaStory || !seaStage || reduceMotion.matches) return;
+    const rect = seaStory.getBoundingClientRect();
+    const range = Math.max(1, seaStory.offsetHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, -rect.top / range));
+    seaStage.dataset.seaPhase = progress > 0.46 ? 'statement' : 'title';
+    seaStage.style.setProperty('--sea-progress', progress.toFixed(4));
+  };
+
+  const requestSeaUpdate = () => {
+    if (frameRequested) return;
+    frameRequested = true;
+    requestAnimationFrame(updateSea);
+  };
+
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!seaVideo) return;
+    if (entry.isIntersecting && !reduceMotion.matches) {
+      loadSource();
+      seaVideo.play().catch(() => undefined);
+    } else {
+      seaVideo.pause();
+    }
+  }, { rootMargin: '55% 0px', threshold: 0.01 });
+
+  if (seaStory) observer.observe(seaStory);
+  window.addEventListener('scroll', requestSeaUpdate, { passive: true });
+  window.addEventListener('resize', requestSeaUpdate, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) seaVideo?.pause();
+  });
+  requestSeaUpdate();
+</script>
+
+<style>
+  .sea-chapter {
+    position: relative;
+    height: 270svh;
+    background: var(--ink);
+  }
+
+  .sea-chapter__stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .sea-chapter__video,
+  .sea-chapter__veil {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sea-chapter__video {
+    z-index: -2;
+    object-fit: cover;
+    filter: saturate(0.72) brightness(0.82) contrast(1.08);
+    transform: scale(calc(1.02 + var(--sea-progress, 0) * 0.06));
+  }
+
+  .sea-chapter__veil {
+    z-index: -1;
+    background:
+      linear-gradient(180deg, rgba(11, 15, 11, 0.32), rgba(11, 15, 11, 0.1) 38%, rgba(11, 15, 11, 0.82)),
+      linear-gradient(90deg, rgba(11, 15, 11, 0.58), transparent 60%);
+  }
+
+  .sea-chapter__topline {
+    position: absolute;
+    top: 7.5rem;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    color: rgba(247, 243, 234, 0.55);
+    font-size: 0.58rem;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+  }
+
+  .sea-chapter__title,
+  .sea-chapter__statement {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: clamp(3rem, 9vh, 7.5rem);
+    transition: opacity 700ms var(--ease-out), transform 900ms var(--ease-out);
+  }
+
+  .sea-chapter__title h2 {
+    max-width: 77rem;
+    margin: 1.25rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 9.3vw, 10.5rem);
+    font-weight: 400;
+    letter-spacing: -0.065em;
+    line-height: 0.93;
+  }
+
+  .sea-chapter__title h2 em,
+  .system h2 em {
+    color: var(--limestone);
+    font-weight: 400;
+  }
+
+  .sea-chapter__statement {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(3rem);
+  }
+
+  .sea-chapter__statement p {
+    max-width: 59rem;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.1vw, 4.8rem);
+    letter-spacing: -0.04em;
+    line-height: 1.16;
+  }
+
+  .sea-chapter__statement strong {
+    align-self: flex-end;
+    margin-top: 2rem;
+    color: var(--clay);
+    font-size: 0.74rem;
+    font-weight: 560;
+    letter-spacing: 0.14em;
+    line-height: 1.6;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  .sea-chapter__stage[data-sea-phase='statement'] .sea-chapter__title {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-3rem);
+  }
+
+  .sea-chapter__stage[data-sea-phase='statement'] .sea-chapter__statement {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .system {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--section-space);
+    background: var(--limestone);
+    color: var(--ink);
+  }
+
+  .system::before {
+    position: absolute;
+    top: -16rem;
+    left: -14rem;
+    width: 38rem;
+    height: 38rem;
+    border: 1px solid rgba(16, 21, 16, 0.12);
+    border-radius: 50%;
+    content: '';
+    box-shadow: 0 0 0 4rem rgba(16, 21, 16, 0.025), 0 0 0 8rem rgba(16, 21, 16, 0.025);
+  }
+
+  .system__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.75fr);
+    gap: clamp(3rem, 7vw, 8rem);
+  }
+
+  .system__copy {
+    position: relative;
+    z-index: 1;
+    padding-top: 3rem;
+  }
+
+  .system h2 em {
+    color: var(--grape);
+  }
+
+  .system__conclusion {
+    max-width: 31rem;
+    margin: 3rem 0 0;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line-dark);
+    color: var(--grape);
+    font-size: 0.75rem;
+    font-weight: 560;
+    letter-spacing: 0.12em;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  .system__figure {
+    margin: 0;
+  }
+
+  .system__figure :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .system__figure figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .system__sequence {
+    display: grid;
+    grid-column: 1 / -1;
+    align-items: center;
+    grid-template-columns: auto 1fr auto 1fr auto;
+    gap: 1rem;
+    margin-top: clamp(2rem, 5vw, 5rem);
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--line-dark);
+    border-bottom: 1px solid var(--line-dark);
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.8vw, 3.5rem);
+  }
+
+  .system__sequence i {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--grape);
+    font-family: var(--font-body);
+    font-size: 0.58rem;
+    font-style: normal;
+    letter-spacing: 0.15em;
+  }
+
+  .system__sequence i::after {
+    width: 100%;
+    height: 1px;
+    content: '';
+    background: var(--line-dark);
+  }
+
+  @media (max-width: 900px) {
+    .system__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .system__figure {
+      width: min(80%, 35rem);
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .sea-chapter {
+      height: 230svh;
+    }
+
+    .sea-chapter__topline {
+      display: none;
+    }
+
+    .sea-chapter__title h2 {
+      font-size: clamp(3.5rem, 17vw, 5.6rem);
+    }
+
+    .sea-chapter__statement p {
+      font-size: clamp(2rem, 9.4vw, 3.2rem);
+    }
+
+    .sea-chapter__statement strong {
+      align-self: flex-start;
+      text-align: left;
+    }
+
+    .system__copy {
+      padding-top: 0;
+    }
+
+    .system__figure {
+      width: 100%;
+    }
+
+    .system__sequence {
+      grid-template-columns: auto 1fr auto;
+    }
+
+    .system__sequence i:nth-of-type(2),
+    .system__sequence span:last-child {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sea-chapter {
+      height: auto;
+    }
+
+    .sea-chapter__stage {
+      position: relative;
+      display: grid;
+      height: auto;
+      min-height: 100svh;
+      align-content: end;
+      background: var(--ink) url('../assets/video-mountains.png') center / cover no-repeat;
+    }
+
+    .sea-chapter__video {
+      display: none;
+    }
+
+    .sea-chapter__title,
+    .sea-chapter__statement {
+      position: relative;
+      inset: auto;
+      visibility: visible !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .sea-chapter__title {
+      padding-bottom: 3rem;
+    }
+
+    .sea-chapter__statement {
+      padding-block: 3rem;
+      background: rgba(16, 21, 16, 0.88);
+    }
+  }
+</style>

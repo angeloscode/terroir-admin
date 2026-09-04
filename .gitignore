@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.design-research/
+.browser-qa/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
