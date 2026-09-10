@@ -1,29 +1,24 @@
 <header class="site-header" data-site-header>
-  <a class="site-header__brand" href="#top" aria-label="Терруар Чёрного моря — на главную">
-    <span>Терруар</span>
-    <span>Чёрного моря</span>
-    <small>Авторские вина</small>
-  </a>
+  <div class="site-header__inner">
+    <a class="site-header__brand" href="#top" aria-label="Терруар Чёрного моря — на главную">
+      <span>Терруар</span>
+      <span>Чёрного моря</span>
+      <small>Коллекция авторских вин</small>
+    </a>
 
-  <nav class="site-header__nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
-    <a href="#terroirs">Терруары</a>
-    <a href="#wines">Коллекция вин</a>
-    <a href="#science">Научная основа</a>
-    <a href="#about">О проекте</a>
-    <a href="#journal">Блог</a>
-    <a href="#buy">Где купить</a>
-  </nav>
+    <nav class="site-header__nav" id="site-navigation" aria-label="Основная навигация" data-site-nav>
+      <a href="#terroirs">Терруары</a>
+      <a href="#wines">Коллекция вин</a>
+      <a href="#science">Методология</a>
+      <a href="#about">О проекте</a>
+      <a href="#journal">Блог</a>
+      <a href="#buy">Где купить</a>
+    </nav>
 
-  <button
-    class="site-header__menu"
-    type="button"
-    aria-expanded="false"
-    aria-controls="site-navigation"
-    aria-label="Открыть меню"
-    data-menu-toggle
-  >
-    <span></span><span></span>
-  </button>
+    <button class="site-header__menu" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Открыть меню" data-menu-toggle>
+      <span></span><span></span>
+    </button>
+  </div>
 </header>
 
 <script>
@@ -93,27 +88,44 @@
 <style>
   .site-header {
     position: fixed;
-    z-index: 1200;
+    z-index: 20;
     top: 0;
     right: 0;
     left: 0;
-    display: grid;
     min-height: 6.3rem;
+    padding: 0;
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    transition: min-height 600ms var(--ease-out);
+  }
+
+  .site-header__inner {
+    display: grid;
+    width: 100%;
+    max-width: var(--content-max);
+    min-height: inherit;
     align-items: center;
-    grid-template-columns: minmax(12rem, 0.75fr) 2fr auto;
+    grid-template-columns: auto 1fr;
     gap: 2rem;
+    margin-inline: auto;
     padding: max(1rem, env(safe-area-inset-top)) var(--gutter) 1rem;
-    border-bottom: 1px solid transparent;
-    color: var(--chalk);
-    transition: min-height 350ms var(--ease-out), background 350ms ease, border-color 350ms ease;
+    color: #fff;
+    pointer-events: auto;
   }
 
   .site-header.is-scrolled {
     min-height: 4.9rem;
-    border-color: rgba(247, 243, 234, 0.14);
-    background: rgba(16, 21, 16, 0.84);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
+  }
+
+  .site-header__brand,
+  .site-header__menu {
+    color: inherit;
+    transition: color 450ms ease;
+  }
+
+  .site-header__nav a {
+    color: inherit;
   }
 
   .site-header__brand {
@@ -130,18 +142,21 @@
   }
 
   .site-header__brand small {
-    margin-top: 0.32rem;
-    color: rgba(247, 243, 234, 0.62);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.38rem;
     font-family: var(--font-body);
-    font-size: 0.5rem;
+    font-size: 0.47rem;
     font-weight: 520;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.17em;
+    line-height: 1;
   }
 
   .site-header__nav {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: clamp(1.15rem, 2.35vw, 2.8rem);
   }
 
@@ -181,7 +196,7 @@
     height: 3rem;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(247, 243, 234, 0.35);
+    border: 1px solid currentColor;
     border-radius: 50%;
     background: transparent;
   }
@@ -200,7 +215,7 @@
   .site-header__menu[aria-expanded='true'] span:last-child { transform: rotate(-45deg); }
 
   @media (max-width: 1320px) {
-    .site-header {
+    .site-header__inner {
       min-height: 5.5rem;
       grid-template-columns: 1fr auto;
     }
@@ -222,20 +237,38 @@
       padding: 7rem var(--gutter) 3rem;
       background: var(--ink);
       opacity: 0;
+      color: var(--chalk);
+      mix-blend-mode: normal;
       transition: opacity 350ms ease, visibility 350ms;
     }
 
     .site-header__nav::before {
-      position: absolute;
-      inset: 0;
-      content: '';
-      opacity: 0.08;
-      background: repeating-linear-gradient(0deg, transparent 0 10vh, var(--chalk) calc(10vh + 1px));
+      display: none;
     }
 
     .site-header__nav.is-open {
       visibility: visible;
       opacity: 1;
+    }
+
+    .site-header__nav a {
+      color: var(--chalk);
+      mix-blend-mode: normal;
+    }
+
+    :global(.menu-open) .site-header__brand,
+    :global(.menu-open) .site-header__menu {
+      color: var(--chalk);
+      mix-blend-mode: normal;
+    }
+
+    :global(.menu-open) .site-header {
+      z-index: 1400;
+      mix-blend-mode: normal;
+    }
+
+    :global(.menu-open) .site-header__inner {
+      color: var(--chalk);
     }
 
     .site-header__nav a {

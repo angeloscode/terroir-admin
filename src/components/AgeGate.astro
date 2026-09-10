@@ -1,5 +1,5 @@
 ---
-import poster from '../assets/video-vineyard-wide.png';
+import poster from '../assets/video-sunset.png';
 ---
 
 <div
@@ -34,7 +34,7 @@ import poster from '../assets/video-vineyard-wide.png';
 
   <div class="age-gate__declined" data-age-declined hidden>
     <p class="age-gate__eyebrow">Доступ ограничен</p>
-    <h2>Мы будем ждать<br /><em>вас позже.</em></h2>
+    <h2>Мы будем ждать<br /><em>вас позже</em></h2>
     <p>Информация на сайте предназначена только для совершеннолетних посетителей.</p>
     <button class="age-gate__decline" type="button" data-age-return>Вернуться к вопросу</button>
   </div>
@@ -73,6 +73,7 @@ import poster from '../assets/video-vineyard-wide.png';
 
   const activateGate = () => {
     if (!gate || isVerified()) {
+      document.documentElement.classList.add('age-verified');
       gate?.setAttribute('hidden', '');
       setPageLock(false);
       return;
@@ -171,17 +172,6 @@ import poster from '../assets/video-vineyard-wide.png';
       linear-gradient(0deg, rgba(10, 14, 10, 0.75), transparent 45%);
   }
 
-  .age-gate__veil::after {
-    position: absolute;
-    inset: 0;
-    content: '';
-    opacity: 0.17;
-    background-image:
-      linear-gradient(rgba(238, 233, 223, 0.16) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(238, 233, 223, 0.16) 1px, transparent 1px);
-    background-size: 25vw 25vh;
-  }
-
   .age-gate__topline,
   .age-gate__warning,
   .age-gate__content,
@@ -190,7 +180,32 @@ import poster from '../assets/video-vineyard-wide.png';
     z-index: 1;
   }
 
+  .age-gate__topline,
+  .age-gate__index,
+  .age-gate__eyebrow,
+  .age-gate h2,
+  #age-gate-description,
+  .age-gate__actions,
+  .age-gate__warning {
+    animation: gate-rise 1200ms var(--ease-out) both;
+  }
+
+  .age-gate__index { animation-delay: 100ms; }
+  .age-gate__eyebrow { animation-delay: 150ms; }
+  .age-gate h2 { animation-delay: 230ms; }
+  #age-gate-description { animation-delay: 340ms; }
+  .age-gate__actions { animation-delay: 440ms; }
+  .age-gate__warning { animation-delay: 540ms; }
+
+  @keyframes gate-rise {
+    from { opacity: 0; transform: translateY(2.6rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .age-gate__topline {
+    width: 100%;
+    max-width: var(--content-max);
+    margin-inline: auto;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid var(--line-light);
@@ -293,7 +308,7 @@ import poster from '../assets/video-vineyard-wide.png';
 
   .age-gate__warning {
     position: absolute;
-    right: var(--gutter);
+    right: max(var(--gutter), calc((100vw - var(--content-max)) / 2));
     bottom: max(1.35rem, env(safe-area-inset-bottom));
     margin: 0;
     color: rgba(247, 243, 234, 0.48);

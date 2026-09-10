@@ -1,0 +1,340 @@
+---
+import { Image } from 'astro:assets';
+import centralImage from '../assets/black-sea-vineyard-coast.png';
+import rockyImage from '../assets/terroir-rocky-placeholder.png';
+import soilImage from '../assets/soil-grape-placeholder.png';
+import grapesImage from '../assets/wine-grapes-hand.png';
+import pourImage from '../assets/wine-pour-glass.png';
+import bottleImage from '../assets/wine-bottle-terroir.png';
+import vinesImage from '../assets/video-vines.png';
+import mountainsImage from '../assets/video-mountains.png';
+---
+
+<section class="constellation" aria-labelledby="constellation-title" data-constellation>
+  <div class="constellation__stage" data-constellation-stage>
+    <div class="constellation__wash" aria-hidden="true"></div>
+
+    <div class="constellation__opening shell" data-constellation-opening>
+      <h2 id="constellation-title">Одного моря<br /><em>никогда недостаточно</em></h2>
+    </div>
+
+    <figure class="constellation__center">
+      <Image
+        src={centralImage}
+        widths={[720, 1200, 1800, 2400]}
+        sizes="100vw"
+        format="webp"
+        quality={84}
+        alt="Черноморские виноградники на склоне над морем"
+      />
+      <figcaption>Море</figcaption>
+    </figure>
+
+    <div class="constellation__satellites" aria-label="Наблюдения, из которых складывается терруар">
+      <figure class="constellation__satellite constellation__satellite--one">
+        <Image src={grapesImage} widths={[220, 360]} sizes="12rem" format="webp" quality={76} alt="Спелый виноград" />
+        <figcaption>Лоза</figcaption>
+      </figure>
+      <figure class="constellation__satellite constellation__satellite--two">
+        <Image src={rockyImage} widths={[320, 520]} sizes="18rem" format="webp" quality={76} alt="Каменистый склон виноградника" />
+        <figcaption>Рельеф</figcaption>
+      </figure>
+      <figure class="constellation__satellite constellation__satellite--three">
+        <Image src={pourImage} widths={[220, 360]} sizes="12rem" format="webp" quality={76} alt="Вино в бокале" />
+        <figcaption>Вкус</figcaption>
+      </figure>
+      <figure class="constellation__satellite constellation__satellite--four">
+        <Image src={soilImage} widths={[280, 460]} sizes="15rem" format="webp" quality={76} alt="Почва и виноград" />
+        <figcaption>Почва</figcaption>
+      </figure>
+      <figure class="constellation__satellite constellation__satellite--five">
+        <Image src={bottleImage} widths={[220, 360]} sizes="12rem" format="webp" quality={76} alt="Вино и камни места" />
+        <figcaption>Вино</figcaption>
+      </figure>
+      <figure class="constellation__satellite constellation__satellite--six">
+        <Image src={vinesImage} widths={[320, 520]} sizes="18rem" format="webp" quality={76} alt="Ряды виноградных лоз" />
+        <figcaption>Свет</figcaption>
+      </figure>
+      <figure class="constellation__satellite constellation__satellite--seven">
+        <Image src={mountainsImage} widths={[260, 440]} sizes="14rem" format="webp" quality={76} alt="Горы над виноградниками" />
+        <figcaption>Высота</figcaption>
+      </figure>
+    </div>
+
+    <div class="constellation__closing shell" data-constellation-closing>
+      <p>Почва, свет, рельеф, ветер, сезон и человек — только вместе они становятся <em>характером вина.</em></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-constellation]');
+  const stage = root?.querySelector<HTMLElement>('[data-constellation-stage]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let requested = false;
+
+  const clamp = (value: number) => Math.min(1, Math.max(0, value));
+
+  const updateConstellation = () => {
+    requested = false;
+    if (!root || !stage || reduceMotion.matches) return;
+    const rect = root.getBoundingClientRect();
+    const range = Math.max(1, root.offsetHeight - window.innerHeight);
+    const progress = clamp(-rect.top / range);
+    const enter = clamp((window.innerHeight - rect.top) / (window.innerHeight * 0.72));
+    const morph = clamp((progress - 0.08) / 0.45);
+    const satellites = clamp((progress - 0.37) / 0.29);
+    const closing = clamp((progress - 0.59) / 0.22);
+    stage.style.setProperty('--constellation-progress', progress.toFixed(4));
+    stage.style.setProperty('--constellation-enter', enter.toFixed(4));
+    stage.style.setProperty('--morph', morph.toFixed(4));
+    stage.style.setProperty('--satellites', satellites.toFixed(4));
+    stage.style.setProperty('--closing', closing.toFixed(4));
+    stage.style.setProperty('--opening', clamp(1 - morph * 1.7).toFixed(4));
+    stage.style.setProperty('--constellation-exit', clamp((progress - 0.94) / 0.06).toFixed(4));
+  };
+
+  const requestConstellationUpdate = () => {
+    if (requested) return;
+    requested = true;
+    requestAnimationFrame(updateConstellation);
+  };
+
+  window.addEventListener('scroll', requestConstellationUpdate, { passive: true });
+  window.addEventListener('resize', requestConstellationUpdate, { passive: true });
+  reduceMotion.addEventListener('change', requestConstellationUpdate);
+  requestConstellationUpdate();
+</script>
+
+<style>
+  .constellation {
+    position: relative;
+    height: 330svh;
+    background: #0c100d;
+    color: var(--chalk);
+  }
+
+  .constellation__stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+    opacity: calc(var(--constellation-enter, 0) * (1 - var(--constellation-exit, 0)));
+    transition: opacity 120ms linear;
+  }
+
+  .constellation__wash {
+    position: absolute;
+    z-index: -3;
+    inset: 0;
+    opacity: var(--morph, 0);
+    background:
+      radial-gradient(circle at 50% 46%, rgba(91, 37, 52, 0.25), transparent 30%),
+      radial-gradient(circle at 12% 82%, rgba(189, 103, 73, 0.1), transparent 28%),
+      #0c100d;
+  }
+
+  .constellation__opening,
+  .constellation__closing {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+  }
+
+  .constellation__opening {
+    align-items: center;
+    justify-content: center;
+    opacity: var(--opening, 1);
+    transform: translateY(calc(var(--morph, 0) * -3rem));
+    text-align: center;
+  }
+
+  .constellation__opening h2 {
+    max-width: 82rem;
+    margin: 0 auto;
+    color: var(--chalk);
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 9.4vw, 10.7rem);
+    font-weight: 400;
+    letter-spacing: -0.065em;
+    line-height: 0.93;
+  }
+
+  .constellation__opening h2 em,
+  .constellation__closing em {
+    color: #d7aa98;
+    font-weight: 400;
+  }
+
+  .constellation__center {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    width: calc(100vw * (1 - var(--morph, 0)) + 34vw * var(--morph, 0));
+    height: calc(100svh * (1 - var(--morph, 0)) + 61svh * var(--morph, 0));
+    margin: 0;
+    overflow: hidden;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2.5rem 7rem rgba(0, 0, 0, calc(var(--morph, 0) * 0.55));
+  }
+
+  .constellation__center::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(180deg, rgba(7, 10, 8, 0.05), rgba(7, 10, 8, 0.62));
+  }
+
+  .constellation__center figcaption {
+    position: absolute;
+    z-index: 2;
+    right: 0.85rem;
+    bottom: 0.75rem;
+    left: 0.85rem;
+    color: var(--chalk);
+    font-size: 0.54rem;
+    font-weight: 560;
+    letter-spacing: 0.16em;
+    opacity: var(--satellites, 0);
+    text-transform: uppercase;
+  }
+
+  .constellation__center :global(img),
+  .constellation__satellite :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .constellation__center :global(img) {
+    filter: saturate(0.78) contrast(1.05) brightness(calc(0.76 + var(--morph, 0) * 0.12));
+    transform: scale(calc(1.08 - var(--morph, 0) * 0.08));
+    transition: transform 1300ms var(--ease-out), filter 900ms ease;
+  }
+
+  .constellation__center:hover :global(img) {
+    filter: saturate(0.96) contrast(1.03) brightness(calc(0.82 + var(--morph, 0) * 0.12));
+    transform: scale(calc(1.14 - var(--morph, 0) * 0.08));
+  }
+
+  .constellation__satellite {
+    position: absolute;
+    z-index: 2;
+    margin: 0;
+    overflow: hidden;
+    opacity: var(--satellites, 0);
+    transform: translateY(calc((1 - var(--satellites, 0)) * 4.5rem)) scale(calc(0.82 + var(--satellites, 0) * 0.18));
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.36);
+    transition: filter 700ms ease;
+  }
+
+  .constellation__satellite::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(180deg, transparent 48%, rgba(6, 9, 7, 0.72));
+    pointer-events: none;
+  }
+
+  .constellation__satellite :global(img) {
+    filter: saturate(0.72) contrast(1.06);
+    transition: transform 1300ms var(--ease-out), filter 900ms ease;
+  }
+
+  .constellation__satellite:hover :global(img) {
+    filter: saturate(0.95) contrast(1.03);
+    transform: scale(1.09);
+  }
+
+  .constellation__satellite figcaption {
+    position: absolute;
+    z-index: 1;
+    right: 0.7rem;
+    bottom: 0.6rem;
+    left: 0.7rem;
+    color: var(--chalk);
+    font-size: 0.52rem;
+    font-weight: 560;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .constellation__satellite--one { top: 4%; left: 2%; width: 8.5vw; height: 21vh; }
+  .constellation__satellite--two { top: 29%; left: 6%; width: 16vw; height: 21vh; }
+  .constellation__satellite--three { bottom: 3%; left: 13%; width: 9vw; height: 23vh; }
+  .constellation__satellite--four { top: 5%; left: 23%; width: 9vw; height: 17vh; }
+  .constellation__satellite--five { top: 4%; right: 2.5%; width: 9vw; height: 22vh; }
+  .constellation__satellite--six { top: 33%; right: 5%; width: 16vw; height: 19vh; }
+  .constellation__satellite--seven { right: 13%; bottom: 3%; width: 10vw; height: 23vh; }
+
+  .constellation__satellite--six :global(img) {
+    filter: saturate(0.9) brightness(1.42) contrast(0.92);
+  }
+
+  .constellation__satellite--six:hover :global(img) {
+    filter: saturate(1) brightness(1.55) contrast(0.94);
+  }
+
+  .constellation__closing {
+    z-index: 3;
+    justify-content: flex-end;
+    padding-bottom: 3.2rem;
+    opacity: var(--closing, 0);
+    transform: translateY(calc((1 - var(--closing, 0)) * 3rem));
+  }
+
+  .constellation__closing p {
+    max-width: 44rem;
+    margin: 0 auto;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.2vw, 2.5rem);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  @media (max-width: 800px) {
+    .constellation { height: 285svh; }
+
+    .constellation__opening { justify-content: flex-end; padding-bottom: 4rem; }
+
+    .constellation__opening h2 {
+      width: 100%;
+      max-width: 22rem;
+      font-size: clamp(2.75rem, 12.75vw, 4.6rem);
+      letter-spacing: -0.055em;
+      overflow-wrap: normal;
+    }
+
+    .constellation__center {
+      width: calc(100vw * (1 - var(--morph, 0)) + 68vw * var(--morph, 0));
+      height: calc(100svh * (1 - var(--morph, 0)) + 47svh * var(--morph, 0));
+    }
+
+    .constellation__satellite--one { top: 7%; left: 4%; width: 20vw; height: 15vh; }
+    .constellation__satellite--two { top: 28%; left: 1.5%; width: 23vw; height: 16vh; }
+    .constellation__satellite--three { bottom: 6%; left: 5%; width: 21vw; height: 16vh; }
+    .constellation__satellite--four { top: 7%; left: 40%; width: 20vw; height: 13vh; }
+    .constellation__satellite--five { top: 8%; right: 4%; width: 20vw; height: 15vh; }
+    .constellation__satellite--six { top: 30%; right: 1.5%; width: 23vw; height: 15vh; }
+    .constellation__satellite--seven { right: 5%; bottom: 6%; width: 21vw; height: 16vh; }
+
+    .constellation__closing { padding-bottom: 5rem; }
+    .constellation__closing p { max-width: 18rem; font-size: 1.25rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .constellation { height: auto; padding-block: var(--section-space); }
+    .constellation__stage { position: relative; height: auto; min-height: 80rem; overflow: hidden; opacity: 1; }
+    .constellation__opening { position: relative; inset: auto; min-height: 28rem; opacity: 1; transform: none; }
+    .constellation__center { top: 45%; width: min(34rem, 70vw); height: 34rem; }
+    .constellation__satellite { opacity: 0.8; transform: none; }
+    .constellation__closing { opacity: 1; transform: none; }
+  }
+</style>

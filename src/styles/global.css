@@ -13,6 +13,7 @@
   --font-display: 'Prata', Georgia, serif;
   --font-body: 'Commissioner Variable', 'Commissioner', sans-serif;
   --gutter: clamp(1.25rem, 3.4vw, 4rem);
+  --content-max: 1720px;
   --section-space: clamp(6.5rem, 12vw, 12rem);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -114,6 +115,10 @@ h3 {
   outline-offset: 4px;
 }
 
+[data-hero-primary]:focus {
+  outline: 0;
+}
+
 .skip-link {
   position: fixed;
   z-index: 5000;
@@ -132,6 +137,8 @@ h3 {
 
 .shell {
   width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
@@ -218,13 +225,64 @@ h3 {
 
 [data-reveal] {
   opacity: 0;
-  transform: translateY(2.25rem);
-  transition: opacity 800ms var(--ease-out), transform 900ms var(--ease-out);
+  filter: blur(4px);
+  transform: translateY(3.5rem);
+  transition:
+    opacity 1200ms var(--ease-out) var(--reveal-delay, 0ms),
+    filter 1200ms var(--ease-out) var(--reveal-delay, 0ms),
+    transform 1400ms var(--ease-out) var(--reveal-delay, 0ms);
+  will-change: opacity, filter, transform;
 }
 
 [data-reveal].is-visible {
   opacity: 1;
+  filter: blur(0);
   transform: translateY(0);
+}
+
+[data-reveal].is-past {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(-3.5rem);
+  transition-delay: 0ms;
+}
+
+[data-reveal].reveal-media {
+  clip-path: inset(10% 0 0 0);
+  transition:
+    opacity 1200ms var(--ease-out) var(--reveal-delay, 0ms),
+    clip-path 1500ms var(--ease-out) var(--reveal-delay, 0ms),
+    filter 1200ms var(--ease-out) var(--reveal-delay, 0ms),
+    transform 1400ms var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+[data-reveal].reveal-media.is-visible {
+  clip-path: inset(0 0 0 0);
+}
+
+main :is(h1, h2, h3, p) {
+  position: relative;
+  z-index: 30;
+}
+
+html.age-verified .site-header > * {
+  animation: page-rise 1200ms var(--ease-out) backwards;
+}
+
+html.age-verified .site-header > *:nth-child(2) { animation-delay: 120ms; }
+html.age-verified .site-header > *:nth-child(3) { animation-delay: 220ms; }
+
+:is(.terroir-card__media, .journal-card__media, .system__figure, .wines__visual) img {
+  transition: transform 1300ms var(--ease-out), filter 900ms ease;
+}
+
+:is(.terroir-card__media, .journal-card__media, .system__figure, .wines__visual):hover img {
+  transform: scale(1.055);
+}
+
+@keyframes page-rise {
+  from { opacity: 0; transform: translateY(2rem); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 720px) {
@@ -257,6 +315,8 @@ h3 {
 
   [data-reveal] {
     opacity: 1;
+    filter: none;
+    clip-path: none;
     transform: none;
   }
 }

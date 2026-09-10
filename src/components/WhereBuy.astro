@@ -1,134 +1,39 @@
 <section class="buy" id="buy" aria-labelledby="buy-title">
-  <div class="buy__intro shell" data-reveal>
-    <p class="eyebrow">Где купить</p>
-    <h2 class="section-title" id="buy-title">Где найти<br /><em>коллекцию.</em></h2>
-    <p class="section-lead">Выберите удобный формат знакомства с винами проекта.</p>
-  </div>
+  <div class="buy__layout shell">
+    <div class="buy__intro" data-reveal>
+      <h2 class="section-title" id="buy-title">Где найти<br /><em>коллекцию</em></h2>
+      <p>Узнайте о точках присутствия или оставьте запрос на сотрудничество с проектом.</p>
+    </div>
 
-  <div class="buy__routes shell">
-    <article class="buy-card" data-reveal>
-      <span class="buy-card__index" aria-hidden="true">01</span>
-      <p class="buy-card__eyebrow">Для частных гостей</p>
-      <h3>Винотеки<br />и рестораны</h3>
-      <p>Список партнёров появится после подтверждения точек присутствия коллекции.</p>
-      <a class="text-link" href="#contacts">Уточнить контакты</a>
-    </article>
-
-    <article class="buy-card buy-card--horeca" data-reveal>
-      <span class="buy-card__index" aria-hidden="true">02</span>
-      <p class="buy-card__eyebrow">Для ресторанов и винотек</p>
-      <h3>Коллекция<br />для HoReCa</h3>
-      <p>Запросите информацию о доступности вин и будущих условиях сотрудничества.</p>
-      <a class="text-link" href="#contacts">Уточнить контакты</a>
-    </article>
+    <div class="buy__routes">
+      <a class="buy-route" href="#contacts" data-reveal>
+        <div><span>Для знакомства с коллекцией</span><h3>Винотеки и рестораны</h3></div>
+        <p>Подскажем ближайшее место, где можно найти и попробовать вина проекта.</p>
+        <i aria-hidden="true">↗</i>
+      </a>
+      <a class="buy-route" href="#contacts" data-reveal>
+        <div><span>Для профессиональных партнёров</span><h3>Ресторанам и винотекам</h3></div>
+        <p>Предоставим информацию о доступности вин и условиях сотрудничества.</p>
+        <i aria-hidden="true">↗</i>
+      </a>
+    </div>
   </div>
 </section>
 
 <style>
-  .buy {
-    position: relative;
-    overflow: hidden;
-    padding-block: var(--section-space);
-    background: #c8b9a7;
-    color: var(--ink);
-  }
-
-  .buy::before {
-    position: absolute;
-    top: -25%;
-    right: -5%;
-    width: 55vw;
-    height: 55vw;
-    border: 1px solid rgba(16, 21, 16, 0.12);
-    border-radius: 50%;
-    content: '';
-    box-shadow: 0 0 0 5vw rgba(16, 21, 16, 0.025), 0 0 0 10vw rgba(16, 21, 16, 0.025);
-  }
-
-  .buy__intro,
-  .buy__routes {
-    position: relative;
-    z-index: 1;
-  }
-
-  .buy__intro em {
-    color: var(--grape);
-    font-weight: 400;
-  }
-
-  .buy__routes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    margin-top: clamp(4rem, 8vw, 8rem);
-    background: rgba(16, 21, 16, 0.24);
-  }
-
-  .buy-card {
-    position: relative;
-    min-height: 33rem;
-    padding: clamp(2rem, 4vw, 4rem);
-    background: var(--limestone);
-  }
-
-  .buy-card--horeca {
-    background: var(--ink-soft);
-    color: var(--chalk);
-  }
-
-  .buy-card__index {
-    position: absolute;
-    top: 1.8rem;
-    right: 1.8rem;
-    color: rgba(16, 21, 16, 0.48);
-    font-family: var(--font-display);
-    font-size: clamp(5rem, 10vw, 10rem);
-    line-height: 1;
-  }
-
-  .buy-card--horeca .buy-card__index {
-    color: rgba(247, 243, 234, 0.38);
-  }
-
-  .buy-card__eyebrow {
-    margin: 0;
-    color: var(--grape);
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-
-  .buy-card--horeca .buy-card__eyebrow {
-    color: #d47d5f;
-  }
-
-  .buy-card h3 {
-    margin: clamp(5rem, 10vw, 9rem) 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 4.6vw, 5.4rem);
-    font-weight: 400;
-    letter-spacing: -0.05em;
-    line-height: 0.96;
-  }
-
-  .buy-card > p:not(.buy-card__eyebrow) {
-    max-width: 31rem;
-    margin: 1.5rem 0 2.5rem;
-    color: rgba(16, 21, 16, 0.62);
-  }
-
-  .buy-card--horeca > p:not(.buy-card__eyebrow) {
-    color: rgba(247, 243, 234, 0.65);
-  }
-
-  @media (max-width: 760px) {
-    .buy__routes {
-      grid-template-columns: 1fr;
-    }
-
-    .buy-card {
-      min-height: 30rem;
-    }
-  }
+  .buy { padding-block: var(--section-space); background: var(--ink); color: var(--chalk); }
+  .buy__layout { display: grid; grid-template-columns: minmax(18rem, 0.56fr) minmax(0, 1fr); gap: clamp(4rem, 9vw, 10rem); }
+  .buy__intro h2 { margin: 0; }
+  .buy__intro em { color: #d8a58f; font-weight: 400; }
+  .buy__intro > p { max-width: 32rem; margin: 1.6rem 0 0; color: rgba(247, 243, 234, 0.62); font-size: clamp(0.96rem, 1.1vw, 1.08rem); }
+  .buy__routes { border-top: 1px solid rgba(247, 243, 234, 0.2); }
+  .buy-route { display: grid; min-height: 16rem; align-items: center; grid-template-columns: minmax(18rem, 1fr) minmax(15rem, 0.55fr) auto; gap: clamp(1.5rem, 4vw, 4rem); border-bottom: 1px solid rgba(247, 243, 234, 0.2); padding-block: clamp(1.6rem, 3vw, 3rem); transition: padding 700ms var(--ease-out), background 400ms ease; }
+  .buy-route:hover { padding-inline: 1.25rem; background: rgba(247, 243, 234, 0.045); }
+  .buy-route span { color: #d8a58f; font-size: 0.61rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .buy-route h3 { margin: 1rem 0 0; font-family: var(--font-display); font-size: clamp(2rem, 3.2vw, 3.7rem); font-weight: 400; letter-spacing: -0.045em; line-height: 1; }
+  .buy-route > p { margin: 0; color: rgba(247, 243, 234, 0.58); font-size: 0.9rem; }
+  .buy-route > i { display: grid; width: 3.4rem; height: 3.4rem; place-items: center; border: 1px solid rgba(247, 243, 234, 0.3); border-radius: 50%; color: #d8a58f; font-size: 1.1rem; font-style: normal; transition: color 350ms ease, background 350ms ease, transform 600ms var(--ease-out); }
+  .buy-route:hover > i { background: var(--chalk); color: var(--ink); transform: translate(0.25rem, -0.25rem); }
+  @media (max-width: 920px) { .buy__layout { grid-template-columns: 1fr; } }
+  @media (max-width: 680px) { .buy-route { min-height: 0; grid-template-columns: 1fr auto; gap: 1.5rem; } .buy-route > p { grid-column: 1 / -1; grid-row: 2; } .buy-route > i { grid-column: 2; grid-row: 1; } }
 </style>

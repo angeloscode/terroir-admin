@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import AgeGate from '../components/AgeGate.astro';
 import Header from '../components/Header.astro';
 import ScrollVideoStory from '../components/ScrollVideoStory.astro';
-import SeaContext from '../components/SeaContext.astro';
+import FrameConstellation from '../components/FrameConstellation.astro';
 import Factors from '../components/Factors.astro';
 import Terroirs from '../components/Terroirs.astro';
 import WineCollection from '../components/WineCollection.astro';
@@ -29,7 +29,7 @@ const websiteSchema = {
 
   <main id="main-content">
     <ScrollVideoStory />
-    <SeaContext />
+    <FrameConstellation />
     <Factors />
     <Terroirs />
     <WineCollection />
@@ -44,18 +44,52 @@ const websiteSchema = {
 
   <script>
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const enhancedTargets = document.querySelectorAll<HTMLElement>([
+      '.system__copy > *',
+      '.terroirs__header > *',
+      '.terroir-card',
+      '.wines__header > *',
+      '.wines__filters',
+      '.wine-product',
+      '.factors__header > *',
+      '.factors__meta > *',
+      '.factor-card',
+      '.map__heading > *',
+      '.map__canvas',
+      '.map-place',
+      '.journal__header > *',
+      '.journal-feature',
+      '.journal-card',
+      '.buy__intro > *',
+      '.buy-route',
+      '.footer__top > *',
+      '.footer__contacts > *',
+      '.footer__bottom > *',
+    ].join(','));
+
+    enhancedTargets.forEach((item, index) => {
+      item.setAttribute('data-reveal', '');
+      item.style.setProperty('--reveal-delay', `${Math.min(index % 5, 4) * 95}ms`);
+      if (item.matches('figure, article, .wine-product, .map__canvas, .journal-card, .journal-feature')) item.classList.add('reveal-media');
+    });
+
     const revealItems = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
 
     if (reduceMotion.matches || !('IntersectionObserver' in window)) {
       revealItems.forEach((item) => item.classList.add('is-visible'));
     } else {
-      const revealObserver = new IntersectionObserver((entries, observer) => {
+      const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('is-past');
+            entry.target.classList.add('is-visible');
+            return;
+          }
+          entry.target.classList.remove('is-visible');
+          const box = entry.boundingClientRect;
+          entry.target.classList.toggle('is-past', box.bottom <= window.innerHeight * 0.08 || box.right <= window.innerWidth * 0.03);
         });
-      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      }, { rootMargin: '-6% 0px -7% 0px', threshold: 0.04 });
 
       revealItems.forEach((item) => revealObserver.observe(item));
     }
