@@ -37,7 +37,7 @@ export default async function Page() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:gap-4 xl:grid-cols-4">
         {cards.map((card) => (
           <StatCard key={card.label} {...card} />
         ))}
@@ -65,11 +65,11 @@ function StatCard({
     <Card className="gap-2">
       <CardHeader>
         <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-3xl font-semibold tabular-nums">
+        <CardTitle className="text-2xl font-semibold tabular-nums sm:text-3xl">
           {nf.format(value)}
         </CardTitle>
       </CardHeader>
-      <CardFooter className="text-sm text-muted-foreground">
+      <CardFooter className="text-xs text-muted-foreground sm:text-sm">
         {delta === null ? (
           "Нет данных для сравнения"
         ) : (
@@ -81,8 +81,8 @@ function StatCard({
                 delta < 0 && "text-red-600 dark:text-red-400"
               )}
             />
-            {delta > 0 ? "+" : ""}
-            {delta}% {period}
+            {delta > 0 ? "+" : delta < 0 ? "−" : ""}
+            {Math.abs(delta)}% {period}
           </span>
         )}
       </CardFooter>
