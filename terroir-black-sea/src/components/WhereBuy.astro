@@ -1,0 +1,39 @@
+<section class="buy" id="buy" aria-labelledby="buy-title">
+  <div class="buy__layout shell">
+    <div class="buy__intro" data-reveal>
+      <h2 class="section-title" id="buy-title">Где найти<br /><em>коллекцию</em></h2>
+      <p>Узнайте о точках присутствия или оставьте запрос на сотрудничество с проектом.</p>
+    </div>
+
+    <div class="buy__routes">
+      <a class="buy-route" href="#contacts" data-reveal>
+        <div><span>Для знакомства с коллекцией</span><h3>Винотеки и рестораны</h3></div>
+        <p>Подскажем ближайшее место, где можно найти и попробовать вина проекта.</p>
+        <i aria-hidden="true">↗</i>
+      </a>
+      <a class="buy-route" href="#contacts" data-reveal>
+        <div><span>Для профессиональных партнёров</span><h3>Ресторанам и винотекам</h3></div>
+        <p>Предоставим информацию о доступности вин и условиях сотрудничества.</p>
+        <i aria-hidden="true">↗</i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .buy { padding-block: var(--section-space); background: var(--ink); color: var(--chalk); }
+  .buy__layout { display: grid; grid-template-columns: minmax(18rem, 0.56fr) minmax(0, 1fr); gap: clamp(4rem, 9vw, 10rem); }
+  .buy__intro h2 { margin: 0; }
+  .buy__intro em { color: #d8a58f; font-weight: 400; }
+  .buy__intro > p { max-width: 32rem; margin: 1.6rem 0 0; color: rgba(247, 243, 234, 0.62); font-size: clamp(0.96rem, 1.1vw, 1.08rem); }
+  .buy__routes { border-top: 1px solid rgba(247, 243, 234, 0.2); }
+  .buy-route { display: grid; min-height: 16rem; align-items: center; grid-template-columns: minmax(18rem, 1fr) minmax(15rem, 0.55fr) auto; gap: clamp(1.5rem, 4vw, 4rem); border-bottom: 1px solid rgba(247, 243, 234, 0.2); padding-block: clamp(1.6rem, 3vw, 3rem); transition: padding 700ms var(--ease-out), background 400ms ease; }
+  .buy-route:hover { padding-inline: 1.25rem; background: rgba(247, 243, 234, 0.045); }
+  .buy-route span { color: #d8a58f; font-size: 0.61rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .buy-route h3 { margin: 1rem 0 0; font-family: var(--font-display); font-size: clamp(2rem, 3.2vw, 3.7rem); font-weight: 400; letter-spacing: -0.045em; line-height: 1; }
+  .buy-route > p { margin: 0; color: rgba(247, 243, 234, 0.58); font-size: 0.9rem; }
+  .buy-route > i { display: grid; width: 3.4rem; height: 3.4rem; place-items: center; border: 1px solid rgba(247, 243, 234, 0.3); border-radius: 50%; color: #d8a58f; font-size: 1.1rem; font-style: normal; transition: color 350ms ease, background 350ms ease, transform 600ms var(--ease-out); }
+  .buy-route:hover > i { background: var(--chalk); color: var(--ink); transform: translate(0.25rem, -0.25rem); }
+  @media (max-width: 920px) { .buy__layout { grid-template-columns: 1fr; } }
+  @media (max-width: 680px) { .buy-route { min-height: 0; grid-template-columns: 1fr auto; gap: 1.5rem; } .buy-route > p { grid-column: 1 / -1; grid-row: 2; } .buy-route > i { grid-column: 2; grid-row: 1; } }
+</style>

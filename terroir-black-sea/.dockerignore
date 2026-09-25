@@ -1,0 +1,8 @@
+node_modules
+dist
+.astro
+.git
+.design-research
+.browser-qa
+*.log
+README.md

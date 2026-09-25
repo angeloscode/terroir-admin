@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AgeGate from '../components/AgeGate.astro';
+import Header from '../components/Header.astro';
+import ScrollVideoStory from '../components/ScrollVideoStory.astro';
+import FrameConstellation from '../components/FrameConstellation.astro';
+import Factors from '../components/Factors.astro';
+import Terroirs from '../components/Terroirs.astro';
+import WineCollection from '../components/WineCollection.astro';
+import TerroirMap from '../components/TerroirMap.astro';
+import Journal from '../components/Journal.astro';
+import WhereBuy from '../components/WhereBuy.astro';
+import Footer from '../components/Footer.astro';
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Терруар Чёрного моря',
+  description: 'Коллекция авторских вин, в которой место становится вкусом.',
+  inLanguage: 'ru-RU',
+  url: Astro.site?.toString(),
+};
+---
+
+<BaseLayout>
+  <a class="skip-link" href="#main-content">Перейти к содержанию</a>
+  <AgeGate />
+  <Header />
+
+  <main id="main-content">
+    <ScrollVideoStory />
+    <FrameConstellation />
+    <Factors />
+    <Terroirs />
+    <WineCollection />
+    <TerroirMap />
+    <Journal />
+    <WhereBuy />
+  </main>
+
+  <Footer />
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+
+  <script>
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const enhancedTargets = document.querySelectorAll<HTMLElement>([
+      '.system__copy > *',
+      '.terroirs__header > *',
+      '.terroir-card',
+      '.wines__header > *',
+      '.wines__filters',
+      '.wine-product',
+      '.factors__header > *',
+      '.factors__meta > *',
+      '.factor-card',
+      '.map__heading > *',
+      '.map__canvas',
+      '.map-place',
+      '.journal__header > *',
+      '.journal-feature',
+      '.journal-card',
+      '.buy__intro > *',
+      '.buy-route',
+      '.footer__top > *',
+      '.footer__contacts > *',
+      '.footer__bottom > *',
+    ].join(','));
+
+    enhancedTargets.forEach((item, index) => {
+      item.setAttribute('data-reveal', '');
+      item.style.setProperty('--reveal-delay', `${Math.min(index % 5, 4) * 95}ms`);
+      if (item.matches('figure, article, .wine-product, .map__canvas, .journal-card, .journal-feature')) item.classList.add('reveal-media');
+    });
+
+    const revealItems = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
+
+    if (reduceMotion.matches || !('IntersectionObserver' in window)) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+    } else {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('is-past');
+            entry.target.classList.add('is-visible');
+            return;
+          }
+          entry.target.classList.remove('is-visible');
+          const box = entry.boundingClientRect;
+          entry.target.classList.toggle('is-past', box.bottom <= window.innerHeight * 0.08 || box.right <= window.innerWidth * 0.03);
+        });
+      }, { rootMargin: '-6% 0px -7% 0px', threshold: 0.04 });
+
+      revealItems.forEach((item) => revealObserver.observe(item));
+    }
+  </script>
+</BaseLayout>

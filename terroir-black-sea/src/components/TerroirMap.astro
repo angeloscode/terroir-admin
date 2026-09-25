@@ -1,0 +1,138 @@
+---
+import 'leaflet/dist/leaflet.css';
+---
+
+<section id="map" class="map" aria-labelledby="map-title" data-terroir-map>
+  <div class="map__heading shell">
+    <h2 id="map-title" data-reveal>Карта терруаров</h2>
+    <p data-reveal>Топография побережья показывает главное: каждый участок существует внутри собственного рельефа. Увеличивайте карту колесом и выбирайте терруар целиком.</p>
+  </div>
+
+  <div class="map__stage shell">
+    <div class="map__canvas" data-reveal>
+      <div class="map__leaflet" data-leaflet-map data-zoom="8" role="application" aria-label="Топографическая карта терруаров Мезыбь и Скалистый берег"></div>
+      <div class="map__legend"><i></i><span>Границы терруаров</span></div>
+    </div>
+
+    <div class="map__places" aria-label="Терруары на карте" data-reveal>
+      <button class="map-place is-active" type="button" data-map-place="mezyb" aria-pressed="true">
+        <span class="map-place__location">Дивноморское · Геленджик</span>
+        <strong>Мезыбь</strong>
+        <span class="map-place__action">Показать контур <i aria-hidden="true">↗</i></span>
+      </button>
+      <button class="map-place" type="button" data-map-place="rocky-shore" aria-pressed="false">
+        <span class="map-place__location">Варваровка · Анапа</span>
+        <strong>Скалистый берег</strong>
+        <span class="map-place__action">Показать контур <i aria-hidden="true">↗</i></span>
+      </button>
+      <p>Контуры обозначают зоны происхождения коллекции; детальная геометрия виноградников раскрывается в паспортах терруаров.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import L from 'leaflet';
+
+  const mapRoot = document.querySelector<HTMLElement>('[data-terroir-map]');
+  const mapElement = mapRoot?.querySelector<HTMLElement>('[data-leaflet-map]');
+  if (mapRoot && mapElement && !mapElement.dataset.initialized) {
+    mapElement.dataset.initialized = 'true';
+    const places = [
+      {
+        key: 'mezyb',
+        name: 'Мезыбь',
+        bounds: [[44.520, 38.105], [44.524, 38.142], [44.508, 38.166], [44.489, 38.151], [44.486, 38.118], [44.501, 38.098]] as L.LatLngExpression[],
+      },
+      {
+        key: 'rocky-shore',
+        name: 'Скалистый берег',
+        bounds: [[44.845, 37.332], [44.853, 37.366], [44.837, 37.390], [44.816, 37.382], [44.811, 37.350], [44.827, 37.326]] as L.LatLngExpression[],
+      },
+    ];
+    const buttons = [...mapRoot.querySelectorAll<HTMLButtonElement>('[data-map-place]')];
+    const liveMap = L.map(mapElement, {
+      zoomControl: false,
+      scrollWheelZoom: true,
+      attributionControl: true,
+      minZoom: 7,
+      maxZoom: 20,
+      zoomSnap: 0.5,
+      zoomDelta: 0.5,
+      wheelDebounceTime: 32,
+      wheelPxPerZoomLevel: 140,
+      zoomAnimation: true,
+      fadeAnimation: true,
+      preferCanvas: true,
+    }).setView([44.69, 37.72], 8);
+    L.control.zoom({ position: 'bottomright' }).addTo(liveMap);
+    liveMap.attributionControl.setPrefix(false);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      maxNativeZoom: 19,
+      keepBuffer: 4,
+      updateWhenZooming: true,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(liveMap);
+
+    const polygons = new Map<string, L.Polygon>();
+    const allBounds = L.latLngBounds([]);
+    places.forEach((place) => {
+      const polygon = L.polygon(place.bounds, { color: '#ba5f43', weight: 2, opacity: 0.94, fillColor: '#b45d43', fillOpacity: 0.18, className: 'terroir-boundary' }).addTo(liveMap);
+      polygon.bindTooltip(place.name, { permanent: true, direction: 'center', className: 'terroir-label' });
+      polygon.on('click', () => activate(place.key, true));
+      polygons.set(place.key, polygon);
+      allBounds.extend(polygon.getBounds());
+    });
+
+    const activate = (key: string, move = false) => {
+      buttons.forEach((button) => {
+        const active = button.dataset.mapPlace === key;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      polygons.forEach((polygon, polygonKey) => polygon.setStyle({ weight: polygonKey === key ? 3 : 1.5, fillOpacity: polygonKey === key ? 0.34 : 0.14 }));
+      const target = polygons.get(key);
+      if (move && target) liveMap.flyToBounds(target.getBounds(), { padding: [90, 90], maxZoom: 11, duration: 1.45 });
+    };
+
+    buttons.forEach((button) => button.addEventListener('click', () => activate(button.dataset.mapPlace || '', true)));
+    liveMap.on('zoomend', () => { mapElement.dataset.zoom = String(liveMap.getZoom()); });
+    liveMap.fitBounds(allBounds, { padding: [70, 70], maxZoom: 9 });
+    activate('mezyb');
+    window.setTimeout(() => liveMap.invalidateSize(), 350);
+  }
+</script>
+
+<style>
+  .map { --map-clay: #cf7658; overflow: hidden; padding-block: var(--section-space); background: #101510; color: var(--chalk); }
+  .map__heading { display: grid; align-items: end; grid-template-columns: minmax(0, 1.2fr) minmax(21rem, 0.45fr); gap: clamp(3rem, 7vw, 8rem); }
+  .map h2 { margin: 0; font-family: var(--font-display); font-size: clamp(3.2rem, 7vw, 8rem); font-weight: 400; letter-spacing: -0.06em; line-height: 0.94; }
+  .map__heading > p { max-width: 36rem; margin: 0 0 0.5rem; color: rgba(247, 243, 234, 0.62); font-size: clamp(0.98rem, 1.16vw, 1.12rem); }
+  .map__stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.32fr); margin-top: clamp(3.5rem, 6vw, 6rem); border: 1px solid rgba(247, 243, 234, 0.16); }
+  .map__canvas { position: relative; min-height: clamp(35rem, 55vw, 49rem); overflow: hidden; background: #101510; }
+  .map__leaflet { position: absolute; inset: 0; background: #101510; }
+  .map__legend { position: absolute; z-index: 500; bottom: 1rem; left: 1rem; display: flex; align-items: center; gap: 0.7rem; padding: 0.75rem 0.9rem; background: rgba(18, 24, 18, 0.86); color: rgba(247, 243, 234, 0.8); backdrop-filter: blur(12px); font-size: 0.59rem; letter-spacing: 0.1em; text-transform: uppercase; pointer-events: none; }
+  .map__legend i { width: 1.4rem; height: 0.72rem; border: 2px solid var(--map-clay); background: rgba(186, 95, 67, 0.22); }
+  .map__places { display: flex; min-width: 0; flex-direction: column; border-left: 1px solid rgba(247, 243, 234, 0.16); background: #151b16; }
+  .map-place { position: relative; display: flex; min-height: 13rem; flex-direction: column; align-items: flex-start; border: 0; border-bottom: 1px solid rgba(247, 243, 234, 0.14); padding: clamp(1.5rem, 2.5vw, 2.4rem); background: transparent; color: var(--chalk); text-align: left; transition: background 450ms ease, color 450ms ease, padding 700ms var(--ease-out); }
+  .map-place:hover, .map-place.is-active { background: #29211f; color: var(--chalk); }
+  .map-place:hover { padding-left: calc(clamp(1.5rem, 2.5vw, 2.4rem) + 0.35rem); }
+  .map-place__location { color: rgba(247, 243, 234, 0.45); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; transition: color 400ms ease; }
+  .map-place:hover .map-place__location, .map-place.is-active .map-place__location { color: #d8a58f; }
+  .map-place strong { margin-top: 1.15rem; font-family: var(--font-display); font-size: clamp(2rem, 3.1vw, 3.5rem); font-weight: 400; letter-spacing: -0.045em; line-height: 0.98; }
+  .map-place__action { display: flex; width: 100%; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 1.5rem; color: rgba(247, 243, 234, 0.58); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; transition: color 400ms ease; }
+  .map-place:hover .map-place__action, .map-place.is-active .map-place__action { color: rgba(247, 243, 234, 0.72); }
+  .map-place__action i { color: var(--map-clay); font-size: 1.05rem; font-style: normal; }
+  .map__places > p { margin: auto 0 0; padding: 1.5rem; color: rgba(247, 243, 234, 0.4); font-size: 0.72rem; line-height: 1.55; }
+  .map :global(.leaflet-tile-pane) { filter: invert(0.94) hue-rotate(165deg) brightness(0.58) contrast(1.22) saturate(0.35); }
+  .map :global(.leaflet-control-attribution) { background: rgba(18, 24, 18, 0.82) !important; color: rgba(247, 243, 234, 0.62); font-size: 9px; }
+  .map :global(.leaflet-control-attribution a) { color: #e0b3a0; }
+  .map :global(.leaflet-bar) { border: 0; box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.2); }
+  .map :global(.leaflet-bar a) { border: 0; border-bottom: 1px solid rgba(247, 243, 234, 0.14); background: rgba(18, 24, 18, 0.9); color: var(--chalk); }
+  .map :global(.leaflet-bar a:hover) { background: var(--map-clay); color: #fff; }
+  .map :global(.terroir-boundary) { transition: fill-opacity 500ms ease, stroke-width 500ms ease; }
+  .map :global(.terroir-label) { border: 1px solid rgba(247, 243, 234, 0.55); border-radius: 0; padding: 0.6rem 0.75rem; background: rgba(18, 24, 18, 0.9); color: #fff; box-shadow: 0 0.7rem 1.8rem rgba(0, 0, 0, 0.22); font-family: var(--font-display); font-size: 1rem; }
+  .map :global(.terroir-label::before) { display: none; }
+  @media (max-width: 960px) { .map__heading { grid-template-columns: 1fr; gap: 2rem; } .map__stage { grid-template-columns: 1fr; } .map__places { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(247, 243, 234, 0.16); border-left: 0; } .map__places > p { grid-column: 1 / -1; } }
+  @media (max-width: 620px) { .map__canvas { min-height: 32rem; } .map__places { grid-template-columns: 1fr; } .map__places > p { grid-column: auto; } .map-place { min-height: 11.5rem; } .map__legend { right: 3.2rem; max-width: 14rem; } }
+</style>

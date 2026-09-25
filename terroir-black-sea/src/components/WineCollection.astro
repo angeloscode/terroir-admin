@@ -1,0 +1,90 @@
+---
+import { Image } from 'astro:assets';
+import bottles from '../assets/wine-bottles-placeholder.png';
+
+const wines = [
+  { name: 'Северный склон', price: '3 200 ₽', terroir: 'Мезыбь', filter: 'mezyb', style: 'Красное · сухое', position: 'left' },
+  { name: 'Белый камень', price: '2 800 ₽', terroir: 'Мезыбь', filter: 'mezyb', style: 'Белое · сухое', position: 'center' },
+  { name: 'Береговой ветер', price: '3 900 ₽', terroir: 'Скалистый берег', filter: 'rocky', style: 'Красное · сухое', position: 'right' },
+  { name: 'Известняк', price: '4 600 ₽', terroir: 'Скалистый берег', filter: 'rocky', style: 'Белое · сухое', position: 'center' },
+];
+---
+
+<section class="wines" id="wines" aria-labelledby="wines-title" data-wine-collection>
+  <div class="wines__header shell">
+    <div data-reveal>
+      <h2 class="section-title" id="wines-title">Сначала место<br /><em>Затем вино</em></h2>
+      <p>Каждое вино раскрывается через происхождение: участок, сезон, сортовой состав и авторские решения винодела.</p>
+    </div>
+    <div class="wines__filters" role="group" aria-label="Фильтр вин по терруару" data-reveal>
+      <button class="is-active" type="button" data-wine-filter="all" aria-pressed="true">Все вина</button>
+      <button type="button" data-wine-filter="mezyb" aria-pressed="false">Мезыбь</button>
+      <button type="button" data-wine-filter="rocky" aria-pressed="false">Скалистый берег</button>
+    </div>
+  </div>
+
+  <div class="wines__grid shell" aria-live="polite">
+    {wines.map((wine) => (
+      <article class="wine-product" data-wine-product data-terroir={wine.filter} data-reveal>
+        <a href="#buy" aria-label={wine.name + ', терруар ' + wine.terroir}>
+          <div class:list={['wine-product__media', 'wine-product__media--' + wine.position]}>
+            <Image src={bottles} widths={[520, 760, 1040]} sizes="(max-width: 620px) 88vw, (max-width: 980px) 44vw, 25vw" format="webp" quality={86} alt={'Бутылка авторского вина «' + wine.name + '»'} loading="lazy" />
+          </div>
+          <div class="wine-product__body">
+            <div class="wine-product__origin"><span>{wine.terroir}</span><span>{wine.style}</span></div>
+            <h3>{wine.name}</h3>
+            <p class="wine-product__price">{wine.price}</p>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+</section>
+
+<script>
+  const collection = document.querySelector<HTMLElement>('[data-wine-collection]');
+  const filters = [...(collection?.querySelectorAll<HTMLButtonElement>('[data-wine-filter]') || [])];
+  const products = [...(collection?.querySelectorAll<HTMLElement>('[data-wine-product]') || [])];
+  filters.forEach((button) => button.addEventListener('click', () => {
+    const value = button.dataset.wineFilter || 'all';
+    filters.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+    products.forEach((product) => {
+      const visible = value === 'all' || product.dataset.terroir === value;
+      product.hidden = !visible;
+    });
+  }));
+</script>
+
+<style>
+  .wines { overflow: hidden; padding-block: var(--section-space); background: #24191c; color: var(--chalk); }
+  .wines__header { display: grid; align-items: end; grid-template-columns: minmax(0, 1fr) auto; gap: 3rem; }
+  .wines__header h2 { margin: 0; }
+  .wines__header em { color: #d8a58f; font-weight: 400; }
+  .wines__header > div:first-child > p { max-width: 39rem; margin: 1.6rem 0 0; color: rgba(247, 243, 234, 0.63); font-size: clamp(0.96rem, 1.1vw, 1.08rem); }
+  .wines__filters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; padding: 0.35rem; border: 1px solid rgba(247, 243, 234, 0.18); border-radius: 999px; }
+  .wines__filters button { border: 0; border-radius: 999px; padding: 0.8rem 1.15rem; background: transparent; color: rgba(247, 243, 234, 0.6); font-size: 0.64rem; letter-spacing: 0.08em; white-space: nowrap; transition: color 300ms ease, background 300ms ease; }
+  .wines__filters button:hover, .wines__filters button.is-active { background: var(--chalk); color: var(--ink); }
+  .wines__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.7rem, 1.4vw, 1.4rem); margin-top: clamp(3.5rem, 6vw, 6rem); }
+  .wine-product { min-width: 0; height: 100%; transition: opacity 400ms ease, transform 700ms var(--ease-out); }
+  .wine-product[hidden] { display: none; }
+  .wine-product > a { display: flex; height: 100%; flex-direction: column; }
+  .wine-product__media { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #17100f; }
+  .wine-product__media::after { position: absolute; inset: 0; content: ''; box-shadow: inset 0 0 4rem rgba(15, 9, 8, 0.32); pointer-events: none; }
+  .wine-product__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.1s var(--ease-out), filter 600ms ease; }
+  .wine-product__media--left :global(img) { object-position: 31% center; }
+  .wine-product__media--center :global(img) { object-position: 50% center; }
+  .wine-product__media--right :global(img) { object-position: 71% center; }
+  .wine-product a:hover .wine-product__media :global(img) { transform: scale(1.035); filter: brightness(1.06); }
+  .wine-product__body { display: grid; flex: 1; grid-template-rows: auto auto auto; align-content: start; padding: 1.25rem 0.1rem 0; }
+  .wine-product__origin { display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: rgba(247, 243, 234, 0.5); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .wine-product__origin span { white-space: nowrap; }
+  .wine-product__origin span:first-child { color: #d8a58f; }
+  .wine-product h3 { min-height: 1.1em; align-self: start; margin: 0.9rem 0 0; font-family: var(--font-display); font-size: clamp(1.65rem, 2.25vw, 2.5rem); font-weight: 400; letter-spacing: -0.035em; line-height: 1.05; }
+  .wine-product__price { margin: 0.65rem 0 0; color: rgba(247, 243, 234, 0.78); font-family: var(--font-display); font-size: clamp(1.15rem, 1.5vw, 1.4rem); letter-spacing: -0.02em; }
+  @media (max-width: 1050px) { .wines__header { grid-template-columns: 1fr; } .wines__filters { justify-self: start; } .wines__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 3rem; } }
+  @media (max-width: 600px) { .wines__filters { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; justify-self: stretch; border-radius: 1rem; } .wines__grid { grid-template-columns: 1fr; } .wine-product { max-width: 29rem; } .wine-product__media { aspect-ratio: 5 / 6; } .wine-product h3 { min-height: 0; } }
+</style>
