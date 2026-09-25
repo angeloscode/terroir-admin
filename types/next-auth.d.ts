@@ -1,6 +1,7 @@
 import { UserRole } from "@prisma/client";
 import { User } from "next-auth";
-import { JWT } from "next-auth/jwt";
+// импорт нужен, чтобы declare module ниже расширял тип JWT, а не объявлял новый модуль
+import "next-auth/jwt";
 
 export type ExtendedUser = User & {
   role: UserRole;

@@ -1,54 +1,48 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
-import Link from "next/link";
 
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import { UserAuthForm } from "@/components/forms/user-auth-form";
-import { Icons } from "@/components/shared/icons";
+import { ArrowLeft, Globe } from "lucide-react";
+import type { Metadata } from "next";
+
+import { siteConfig } from "@/config/site";
+import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
-  title: "Login",
-  description: "Login to your account",
+  title: `Вход — ${siteConfig.name}`,
+  description: "Вход в панель администратора",
 };
 
 export default function LoginPage() {
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Link
-        href="/"
-        className={cn(
-          buttonVariants({ variant: "outline", size: "sm" }),
-          "absolute left-4 top-4 md:left-8 md:top-8",
-        )}
-      >
-        <>
-          <Icons.chevronLeft className="mr-2 size-4" />
-          Back
-        </>
-      </Link>
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <Icons.logo className="mx-auto size-6" />
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome back
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Enter your email to sign in to your account
-          </p>
+    <>
+      <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-87.5">
+        <div className="space-y-2 text-center">
+          <h1 className="font-medium text-3xl">Вход в аккаунт</h1>
+          <p className="text-muted-foreground text-sm">Введите электронную почту и пароль, чтобы продолжить.</p>
         </div>
         <Suspense>
-          <UserAuthForm />
+          <LoginForm />
         </Suspense>
-        <p className="px-8 text-center text-sm text-muted-foreground">
-          <Link
-            href="/register"
-            className="hover:text-brand underline underline-offset-4"
-          >
-            Don&apos;t have an account? Sign Up
-          </Link>
-        </p>
       </div>
-    </div>
+
+      <div className="absolute top-5 flex w-full justify-start px-10">
+        {/* обычный <a>: ведёт на Astro-сайт в корне домена, мимо basePath /admin */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ссылка на Astro вне basePath */}
+        <a
+          href="/"
+          className="flex items-center gap-1 text-muted-foreground text-sm transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          На сайт
+        </a>
+      </div>
+
+      <div className="absolute bottom-5 flex w-full justify-between px-10">
+        <div className="text-sm">{siteConfig.copyright}</div>
+        <div className="flex items-center gap-1 text-sm">
+          <Globe className="size-4 text-muted-foreground" />
+          RU
+        </div>
+      </div>
+    </>
   );
 }

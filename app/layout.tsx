@@ -1,10 +1,12 @@
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata = {
   title: "Terroir Admin",
-  description: "Admin panel",
+  description: "Панель администратора",
 };
 
 export default function RootLayout({
@@ -15,10 +17,19 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body>
-        <SessionProvider>
-          {children}
-          <Toaster richColors closeButton />
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider basePath="/admin/api/auth">
+            <TooltipProvider>
+              {children}
+              <Toaster richColors closeButton containerAriaLabel="Уведомления" />
+            </TooltipProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

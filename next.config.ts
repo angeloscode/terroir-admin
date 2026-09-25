@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Админка живёт на том же домене, что и Astro-сайт: example.com/admin
+  basePath: "/admin",
+  output: "standalone",
 };
 
 export default nextConfig;

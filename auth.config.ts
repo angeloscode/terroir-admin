@@ -15,10 +15,11 @@ export default {
         if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email: (credentials.email as string).toLowerCase() },
         });
 
-        if (!user || !user.password) return null;
+        // В панель пускаем только администраторов
+        if (!user?.password || user.role !== "ADMIN") return null;
 
         const isValid = await bcrypt.compare(
           credentials.password as string,
@@ -27,7 +28,8 @@ export default {
 
         if (!isValid) return null;
 
-        return user;
+        // Хеш пароля наружу не отдаём
+        return { id: user.id, name: user.name, email: user.email };
       },
     }),
   ],
