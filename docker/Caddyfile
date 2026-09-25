@@ -1,0 +1,60 @@
+{
+	admin off
+	# Email для Let's Encrypt (только когда SITE_ADDRESS — реальный домен)
+	email {$ACME_EMAIL:admin@localhost}
+}
+
+# Внутренний health-check, наружу не публикуется
+:8081 {
+	bind 127.0.0.1
+	respond /healthz "ok" 200
+}
+
+# SITE_ADDRESS=example.com  -> автоматический HTTPS
+# SITE_ADDRESS=:80 (default) -> просто HTTP, локально/за внешним балансером
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	# ---------- Админка: Next.js (basePath=/admin), префикс НЕ срезаем ----------
+	@admin path /admin /admin/*
+	handle @admin {
+		header X-Robots-Tag "noindex, nofollow"
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	# ---------- Сайт: статика Astro ----------
+	handle {
+		root * /srv/site
+
+		@video path *.mp4 *.webm
+		header @video Cache-Control "public, max-age=604800"
+
+		@assets path *.css *.js *.mjs *.woff *.woff2 *.webp *.avif *.png *.jpg *.jpeg *.svg *.ico
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+
+		@html not path *.css *.js *.mjs *.woff *.woff2 *.webp *.avif *.png *.jpg *.jpeg *.svg *.ico *.mp4 *.webm
+		header @html Cache-Control "no-cache"
+
+		try_files {path} {path}/ {path}.html
+		file_server
+	}
+
+	handle_errors 404 {
+		root * /srv/site
+		@page404 file /404.html
+		handle @page404 {
+			rewrite * /404.html
+			file_server
+		}
+		handle {
+			respond "404 Not Found" 404
+		}
+	}
+}

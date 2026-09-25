@@ -1,0 +1,12 @@
+**/node_modules
+**/.git
+**/.next
+**/.astro
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+**/*.log
+**/.DS_Store
+terroir-black-sea/.design-research
+terroir-black-sea/.browser-qa

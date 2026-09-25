@@ -1,0 +1,15 @@
+# секреты
+.env
+.env.*
+!.env.example
+
+# зависимости и сборки
+node_modules/
+.next/
+dist/
+.astro/
+
+# служебное
+.DS_Store
+*.log
+.claude/
