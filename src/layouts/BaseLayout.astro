@@ -54,5 +54,12 @@ const socialImage = new URL(ogImage.src, Astro.site);
   </head>
   <body>
     <slot />
+    <script is:inline>
+      // Мини-аналитика: один маячок на загрузку страницы → админка (/admin/api/track).
+      // Без cookie и без передачи персональных данных; ошибки игнорируются.
+      try {
+        navigator.sendBeacon('/admin/api/track', JSON.stringify({ path: location.pathname }));
+      } catch {}
+    </script>
   </body>
 </html>
