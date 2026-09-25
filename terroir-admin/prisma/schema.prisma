@@ -35,3 +35,52 @@ model PageView {
   @@index([createdAt])
   @@map(name: "page_views")
 }
+
+// ---------- Витрина вин (секция #wines на сайте) ----------
+
+enum Terroir {
+  MEZYB       // Мезыбь
+  ROCKY_SHORE // Скалистый берег
+}
+
+enum WineColor {
+  RED
+  WHITE
+  ROSE
+  ORANGE
+  SPARKLING
+}
+
+enum WineSweetness {
+  DRY
+  SEMI_DRY
+  SEMI_SWEET
+  SWEET
+}
+
+// Кадрирование фото в карточке (object-position)
+enum ImagePosition {
+  LEFT
+  CENTER
+  RIGHT
+}
+
+model Wine {
+  id            String        @id @default(cuid())
+  name          String
+  price         Int // в рублях
+  terroir       Terroir
+  color         WineColor
+  sweetness     WineSweetness
+  imagePosition ImagePosition @default(CENTER) @map(name: "image_position")
+  // Фото хранится в БД: вин немного, отдельное файловое хранилище не нужно
+  image         Bytes?
+  imageType     String?       @map(name: "image_type")
+  published     Boolean       @default(true)
+  sortOrder     Int           @default(0) @map(name: "sort_order")
+  createdAt     DateTime      @default(now()) @map(name: "created_at")
+  updatedAt     DateTime      @updatedAt @map(name: "updated_at")
+
+  @@index([published, sortOrder])
+  @@map(name: "wines")
+}

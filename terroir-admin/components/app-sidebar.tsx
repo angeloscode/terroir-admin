@@ -3,8 +3,9 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Wine } from "lucide-react"
+import { Wine } from "lucide-react"
 
+import { isActivePath, navItems } from "@/config/nav"
 import { siteConfig } from "@/config/site"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -18,8 +19,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-
-const navItems = [{ title: "Обзор", url: "/", icon: LayoutDashboard }]
 
 export function AppSidebar({
   user,
@@ -55,7 +54,7 @@ export function AppSidebar({
                   <SidebarMenuButton
                     asChild
                     tooltip={item.title}
-                    isActive={pathname === item.url}
+                    isActive={isActivePath(pathname, item.url)}
                   >
                     <Link href={item.url}>
                       <item.icon />

@@ -1,16 +1,32 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import bottles from '../assets/wine-bottles-placeholder.png';
 
+// Статичные карточки — запасной вариант (без JS, для поисковиков, если API недоступен).
+// Актуальные данные скрипт ниже берёт из админки: GET /admin/api/wines.
 const wines = [
   { name: 'Северный склон', price: '3 200 ₽', terroir: 'Мезыбь', filter: 'mezyb', style: 'Красное · сухое', position: 'left' },
   { name: 'Белый камень', price: '2 800 ₽', terroir: 'Мезыбь', filter: 'mezyb', style: 'Белое · сухое', position: 'center' },
   { name: 'Береговой ветер', price: '3 900 ₽', terroir: 'Скалистый берег', filter: 'rocky', style: 'Красное · сухое', position: 'right' },
   { name: 'Известняк', price: '4 600 ₽', terroir: 'Скалистый берег', filter: 'rocky', style: 'Белое · сухое', position: 'center' },
 ];
+
+const imageSizes = '(max-width: 620px) 88vw, (max-width: 980px) 44vw, 25vw';
+// Та же оптимизированная заглушка для вин без фото, отрисованных скриптом
+const placeholder = await getImage({ src: bottles, widths: [520, 760, 1040], format: 'webp', quality: 86 });
+const fallbackKey = JSON.stringify(wines.map((w) => [w.name, w.price, w.filter, w.style, w.position, null]));
 ---
 
-<section class="wines" id="wines" aria-labelledby="wines-title" data-wine-collection>
+<section
+  class="wines"
+  id="wines"
+  aria-labelledby="wines-title"
+  data-wine-collection
+  data-placeholder-src={placeholder.src}
+  data-placeholder-srcset={placeholder.srcSet.attribute}
+  data-image-sizes={imageSizes}
+  data-fallback-key={fallbackKey}
+>
   <div class="wines__header shell">
     <div data-reveal>
       <h2 class="section-title" id="wines-title">Сначала место<br /><em>Затем вино</em></h2>
@@ -28,7 +44,7 @@ const wines = [
       <article class="wine-product" data-wine-product data-terroir={wine.filter} data-reveal>
         <a href="#buy" aria-label={wine.name + ', терруар ' + wine.terroir}>
           <div class:list={['wine-product__media', 'wine-product__media--' + wine.position]}>
-            <Image src={bottles} widths={[520, 760, 1040]} sizes="(max-width: 620px) 88vw, (max-width: 980px) 44vw, 25vw" format="webp" quality={86} alt={'Бутылка авторского вина «' + wine.name + '»'} loading="lazy" />
+            <Image src={bottles} widths={[520, 760, 1040]} sizes={imageSizes} format="webp" quality={86} alt={'Бутылка авторского вина «' + wine.name + '»'} loading="lazy" />
           </div>
           <div class="wine-product__body">
             <div class="wine-product__origin"><span>{wine.terroir}</span><span>{wine.style}</span></div>
@@ -42,21 +58,147 @@ const wines = [
 </section>
 
 <script>
+  type PublicWine = {
+    id: string;
+    name: string;
+    price: string;
+    terroir: { key: string; label: string };
+    style: string;
+    position: 'left' | 'center' | 'right';
+    image: string | null;
+  };
+
   const collection = document.querySelector<HTMLElement>('[data-wine-collection]');
-  const filters = [...(collection?.querySelectorAll<HTMLButtonElement>('[data-wine-filter]') || [])];
-  const products = [...(collection?.querySelectorAll<HTMLElement>('[data-wine-product]') || [])];
-  filters.forEach((button) => button.addEventListener('click', () => {
-    const value = button.dataset.wineFilter || 'all';
-    filters.forEach((item) => {
-      const active = item === button;
-      item.classList.toggle('is-active', active);
-      item.setAttribute('aria-pressed', String(active));
+  const grid = collection?.querySelector<HTMLElement>('.wines__grid');
+  const filtersRoot = collection?.querySelector<HTMLElement>('.wines__filters');
+  let activeFilter = 'all';
+
+  const applyFilter = () => {
+    filtersRoot?.querySelectorAll<HTMLButtonElement>('[data-wine-filter]').forEach((button) => {
+      const active = button.dataset.wineFilter === activeFilter;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
     });
-    products.forEach((product) => {
-      const visible = value === 'all' || product.dataset.terroir === value;
-      product.hidden = !visible;
+    grid?.querySelectorAll<HTMLElement>('[data-wine-product]').forEach((product) => {
+      product.hidden = activeFilter !== 'all' && product.dataset.terroir !== activeFilter;
     });
-  }));
+  };
+
+  // Делегирование: кнопки фильтра перерисовываются после загрузки данных
+  filtersRoot?.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-wine-filter]');
+    if (!button) return;
+    activeFilter = button.dataset.wineFilter || 'all';
+    applyFilter();
+  });
+
+  // Стили компонента scoped: Astro применяет их только к элементам с атрибутом data-astro-cid-*.
+  // Берём его у секции и ставим на всё, что создаём скриптом.
+  const scopeAttr = collection?.getAttributeNames().find((name) => name.startsWith('data-astro-cid-'));
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string) => {
+    const node = document.createElement(tag);
+    if (scopeAttr) node.setAttribute(scopeAttr, '');
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text; // только textContent: данные из БД не попадают в разметку
+    return node;
+  };
+
+  const renderCard = (wine: PublicWine) => {
+    const article = el('article', 'wine-product');
+    article.dataset.wineProduct = '';
+    article.dataset.terroir = wine.terroir.key;
+
+    const link = el('a');
+    link.href = '#buy';
+    link.setAttribute('aria-label', `${wine.name}, терруар ${wine.terroir.label}`);
+
+    const media = el('div', `wine-product__media wine-product__media--${wine.position}`);
+    const img = el('img');
+    img.alt = `Бутылка авторского вина «${wine.name}»`;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    if (wine.image) {
+      img.src = wine.image;
+    } else {
+      img.src = collection!.dataset.placeholderSrc!;
+      img.srcset = collection!.dataset.placeholderSrcset!;
+      img.sizes = collection!.dataset.imageSizes!;
+    }
+    media.append(img);
+
+    const body = el('div', 'wine-product__body');
+    const origin = el('div', 'wine-product__origin');
+    origin.append(el('span', undefined, wine.terroir.label), el('span', undefined, wine.style));
+    body.append(origin, el('h3', undefined, wine.name), el('p', 'wine-product__price', wine.price));
+
+    link.append(media, body);
+    article.append(link);
+    return article;
+  };
+
+  const renderFilters = (wines: PublicWine[]) => {
+    const terroirs = new Map(wines.map((wine) => [wine.terroir.key, wine.terroir.label]));
+    if (!terroirs.has(activeFilter)) activeFilter = 'all';
+    const buttons = [['all', 'Все вина'], ...terroirs].map(([key, label]) => {
+      const button = el('button', undefined, label);
+      button.type = 'button';
+      button.dataset.wineFilter = key;
+      return button;
+    });
+    filtersRoot?.replaceChildren(...buttons);
+  };
+
+  // Карточки, добавленные после загрузки, общий наблюдатель страницы не видит — анимируем их сами
+  const reveal = (items: HTMLElement[]) => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    items.forEach((item, index) => {
+      item.setAttribute('data-reveal', '');
+      item.classList.add('reveal-media');
+      item.style.setProperty('--reveal-delay', `${Math.min(index % 5, 4) * 95}ms`);
+    });
+    if (reduce || !('IntersectionObserver' in window)) {
+      items.forEach((item) => item.classList.add('is-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '-6% 0px -7% 0px', threshold: 0.04 });
+    items.forEach((item) => observer.observe(item));
+  };
+
+  const render = (wines: PublicWine[]) => {
+    if (!grid) return;
+    renderFilters(wines);
+    if (wines.length === 0) {
+      grid.replaceChildren(el('p', 'wines__empty', 'Коллекция обновляется — скоро здесь появятся вина.'));
+      return;
+    }
+    const cards = wines.map(renderCard);
+    grid.replaceChildren(...cards);
+    reveal(cards);
+    applyFilter();
+  };
+
+  const load = async () => {
+    try {
+      const response = await fetch('/admin/api/wines', { headers: { Accept: 'application/json' } });
+      if (!response.ok) return; // оставляем статичные карточки
+      const wines: PublicWine[] = await response.json();
+      // Данные совпадают со статичной вёрсткой — не перерисовываем, чтобы не мигать
+      const key = JSON.stringify(wines.map((w) => [w.name, w.price, w.terroir.key, w.style, w.position, w.image]));
+      if (key === collection?.dataset.fallbackKey) return;
+      render(wines);
+    } catch {
+      // сеть или dev-режим без админки — остаются статичные карточки
+    }
+  };
+
+  if (collection && grid) load();
 </script>
 
 <style>
@@ -71,6 +213,7 @@ const wines = [
   .wines__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.7rem, 1.4vw, 1.4rem); margin-top: clamp(3.5rem, 6vw, 6rem); }
   .wine-product { min-width: 0; height: 100%; transition: opacity 400ms ease, transform 700ms var(--ease-out); }
   .wine-product[hidden] { display: none; }
+  .wines__empty { grid-column: 1 / -1; margin: 0; padding-block: 4rem; color: rgba(247, 243, 234, 0.6); text-align: center; }
   .wine-product > a { display: flex; height: 100%; flex-direction: column; }
   .wine-product__media { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #17100f; }
   .wine-product__media::after { position: absolute; inset: 0; content: ''; box-shadow: inset 0 0 4rem rgba(15, 9, 8, 0.32); pointer-events: none; }
